@@ -13,6 +13,10 @@ export const ContestInterface = () => {
   const [editingElement, setEditingElement] = useState(null);
   const [snapGuides, setSnapGuides] = useState({ horizontal: [], vertical: [] });
   
+  // Image elements state
+  const [imageElements, setImageElements] = useState([]);
+  const [selectedImageElement, setSelectedImageElement] = useState(null);
+  
   // Configuration states
   const [config, setConfig] = useState({
     mode: 1, // 1 = bannière + texte, 2 = fond seul
@@ -71,14 +75,46 @@ export const ContestInterface = () => {
     }
   };
 
-  // Function to calculate snap guides
-  const calculateSnapGuides = (elementId, newX, newY, containerRect) => {
+  // Image management functions
+  const addImageElement = () => {
+    const newElement = {
+      id: Date.now(),
+      src: 'https://images.unsplash.com/photo-1649972904349-6e44c42644a7',
+      x: 100,
+      y: 100,
+      width: 150,
+      height: 100,
+      isDragging: false
+    };
+    setImageElements(prev => [...prev, newElement]);
+    setSelectedImageElement(newElement.id);
+  };
+
+  const updateImageElement = (id, updates) => {
+    setImageElements(prev => prev.map(el => 
+      el.id === id ? { ...el, ...updates } : el
+    ));
+  };
+
+  const deleteImageElement = (id) => {
+    setImageElements(prev => prev.filter(el => el.id !== id));
+    if (selectedImageElement === id) {
+      setSelectedImageElement(null);
+    }
+  };
+
+  // Function to calculate snap guides with element center consideration
+  const calculateSnapGuides = (elementId, newX, newY, containerRect, elementWidth = 100) => {
     const snapTolerance = 10;
     const guides = { horizontal: [], vertical: [] };
     
-    // Center guides
-    const centerX = containerRect.width / 2;
-    const centerY = containerRect.height / 2;
+    // Calculate element center positions
+    const elementCenterX = newX + elementWidth / 2;
+    const elementCenterY = newY + 15; // Approximate text height center
+    
+    // Container center guides
+    const containerCenterX = containerRect.width / 2;
+    const containerCenterY = containerRect.height / 2;
     
     // Edge guides
     const leftEdge = 20;
@@ -86,14 +122,14 @@ export const ContestInterface = () => {
     const topEdge = 20;
     const bottomEdge = containerRect.height - 20;
     
-    // Snap to center
-    if (Math.abs(newX - centerX) < snapTolerance) {
-      guides.vertical.push(centerX);
-      newX = centerX;
+    // Snap element center to container center
+    if (Math.abs(elementCenterX - containerCenterX) < snapTolerance) {
+      guides.vertical.push(containerCenterX);
+      newX = containerCenterX - elementWidth / 2;
     }
-    if (Math.abs(newY - centerY) < snapTolerance) {
-      guides.horizontal.push(centerY);
-      newY = centerY;
+    if (Math.abs(elementCenterY - containerCenterY) < snapTolerance) {
+      guides.horizontal.push(containerCenterY);
+      newY = containerCenterY - 15;
     }
     
     // Snap to edges
@@ -114,9 +150,21 @@ export const ContestInterface = () => {
       newY = bottomEdge;
     }
     
-    // Snap to other elements
+    // Snap to other text elements
     textElements.forEach(el => {
       if (el.id !== elementId) {
+        const otherCenterX = el.x + 50; // Estimate text width
+        const otherCenterY = el.y + 15;
+        
+        if (Math.abs(elementCenterX - otherCenterX) < snapTolerance) {
+          guides.vertical.push(otherCenterX);
+          newX = otherCenterX - elementWidth / 2;
+        }
+        if (Math.abs(elementCenterY - otherCenterY) < snapTolerance) {
+          guides.horizontal.push(otherCenterY);
+          newY = otherCenterY - 15;
+        }
+        
         if (Math.abs(newX - el.x) < snapTolerance) {
           guides.vertical.push(el.x);
           newX = el.x;
@@ -124,6 +172,23 @@ export const ContestInterface = () => {
         if (Math.abs(newY - el.y) < snapTolerance) {
           guides.horizontal.push(el.y);
           newY = el.y;
+        }
+      }
+    });
+    
+    // Snap to other image elements
+    imageElements.forEach(el => {
+      if (el.id !== elementId) {
+        const otherCenterX = el.x + el.width / 2;
+        const otherCenterY = el.y + el.height / 2;
+        
+        if (Math.abs(elementCenterX - otherCenterX) < snapTolerance) {
+          guides.vertical.push(otherCenterX);
+          newX = otherCenterX - elementWidth / 2;
+        }
+        if (Math.abs(elementCenterY - otherCenterY) < snapTolerance) {
+          guides.horizontal.push(otherCenterY);
+          newY = otherCenterY - 15;
         }
       }
     });
@@ -147,7 +212,7 @@ export const ContestInterface = () => {
       const startY = e.clientY;
 
       const handleMouseMove = (e) => {
-        const deltaY = startY - e.clientY; // Inverse for intuitive resizing
+        const deltaY = e.clientY - startY; // Corrected: down = bigger, up = smaller
         const newSize = Math.max(8, Math.min(72, startSize + deltaY * 0.5));
         updateTextElement(elementId, { fontSize: Math.round(newSize) });
       };
@@ -199,6 +264,79 @@ export const ContestInterface = () => {
     }
   };
 
+  // Function to handle image mouse events
+  const handleImageMouseDown = (e, imageId) => {
+    e.preventDefault();
+    setSelectedImageElement(imageId);
+    
+    const element = imageElements.find(el => el.id === imageId);
+    if (!element) return;
+
+    // Check if it's a resize handle
+    const isResizeHandle = e.target.classList.contains('resize-handle-image');
+    
+    if (isResizeHandle) {
+      // Handle resizing
+      const startWidth = element.width;
+      const startHeight = element.height;
+      const startX = e.clientX;
+      const startY = e.clientY;
+
+      const handleMouseMove = (e) => {
+        const deltaX = e.clientX - startX;
+        const deltaY = e.clientY - startY;
+        const newWidth = Math.max(50, Math.min(500, startWidth + deltaX));
+        const newHeight = Math.max(50, Math.min(500, startHeight + deltaY));
+        updateImageElement(imageId, { width: newWidth, height: newHeight });
+      };
+
+      const handleMouseUp = () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+        setSnapGuides({ horizontal: [], vertical: [] });
+      };
+
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    } else {
+      // Handle dragging
+      const bannerElement = config.mode === 1 ? 
+        e.currentTarget.closest('.preview-container').querySelector('.banner-zone') : 
+        e.currentTarget.closest('.preview-container');
+      
+      if (!bannerElement) return;
+
+      const containerRect = bannerElement.getBoundingClientRect();
+      const startX = e.clientX - containerRect.left - element.x;
+      const startY = e.clientY - containerRect.top - element.y;
+
+      const handleMouseMove = (e) => {
+        let newX = e.clientX - containerRect.left - startX;
+        let newY = e.clientY - containerRect.top - startY;
+        
+        // Calculate snap guides and adjust position
+        const snapResult = calculateSnapGuides(imageId, newX, newY, containerRect, element.width);
+        newX = snapResult.newX;
+        newY = snapResult.newY;
+        setSnapGuides(snapResult.guides);
+        
+        updateImageElement(imageId, { 
+          x: Math.max(0, Math.min(newX, containerRect.width - element.width)), 
+          y: Math.max(0, Math.min(newY, containerRect.height - element.height))
+        });
+      };
+
+      const handleMouseUp = () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+        setSnapGuides({ horizontal: [], vertical: [] });
+      };
+
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    }
+  };
+
   // Function to handle double-click for inline editing
   const handleDoubleClick = (elementId) => {
     setEditingElement(elementId);
@@ -220,6 +358,7 @@ export const ContestInterface = () => {
     { id: 'general', label: 'Général', icon: Settings },
     { id: 'zone', label: 'Zone de jeu', icon: MousePointer },
     { id: 'texts', label: 'Textes', icon: Type },
+    { id: 'images', label: 'Images', icon: Image },
     { id: 'buttons', label: 'Boutons', icon: MousePointer },
     { id: 'code', label: 'Code personnalisé et tags', icon: Code },
   ];
@@ -497,6 +636,98 @@ export const ContestInterface = () => {
                 )}
               </div>
             </>
+           )}
+
+          {activeTab === 'images' && (
+            <>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-sm font-medium">Éléments d'image</h3>
+                  <Button 
+                    onClick={addImageElement}
+                    className="bg-green-600 hover:bg-green-500 text-white text-xs px-2 py-1 h-auto"
+                  >
+                    + Ajouter
+                  </Button>
+                </div>
+                
+                <div className="space-y-2 max-h-40 overflow-y-auto">
+                  {imageElements.map((element) => (
+                    <div 
+                      key={element.id} 
+                      className={`p-2 bg-slate-700 rounded border cursor-pointer ${
+                        selectedImageElement === element.id ? 'border-orange-500' : 'border-slate-600'
+                      }`}
+                      onClick={() => setSelectedImageElement(element.id)}
+                    >
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs truncate">Image {element.id}</span>
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deleteImageElement(element.id);
+                          }}
+                          className="text-red-400 hover:text-red-300 text-xs"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {selectedImageElement && (
+                  <div className="space-y-3 border-t border-slate-500 pt-3">
+                    <h4 className="text-sm font-medium">Modifier l'image sélectionnée</h4>
+                    
+                    <div>
+                      <label className="block text-xs font-medium mb-1">Source de l'image</label>
+                      <select
+                        value={imageElements.find(el => el.id === selectedImageElement)?.src || ''}
+                        onChange={(e) => updateImageElement(selectedImageElement, { src: e.target.value })}
+                        className="bg-slate-700 border border-slate-500 rounded px-2 py-1 text-white w-full text-sm"
+                      >
+                        <option value="https://images.unsplash.com/photo-1649972904349-6e44c42644a7">Femme avec laptop</option>
+                        <option value="https://images.unsplash.com/photo-1488590528505-98d2b5aba04b">Laptop gris</option>
+                        <option value="https://images.unsplash.com/photo-1518770660439-4636190af475">Circuit électronique</option>
+                        <option value="https://images.unsplash.com/photo-1461749280684-dccba630e2f6">Code Java</option>
+                        <option value="https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d">MacBook Pro</option>
+                      </select>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-xs font-medium mb-1">Largeur</label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="number"
+                          min="50"
+                          max="500"
+                          value={imageElements.find(el => el.id === selectedImageElement)?.width || 150}
+                          onChange={(e) => updateImageElement(selectedImageElement, { width: parseInt(e.target.value) })}
+                          className="bg-slate-700 border border-slate-500 rounded px-2 py-1 text-white w-16 text-sm"
+                        />
+                        <span className="text-slate-300">px</span>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-xs font-medium mb-1">Hauteur</label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="number"
+                          min="50"
+                          max="500"
+                          value={imageElements.find(el => el.id === selectedImageElement)?.height || 100}
+                          onChange={(e) => updateImageElement(selectedImageElement, { height: parseInt(e.target.value) })}
+                          className="bg-slate-700 border border-slate-500 rounded px-2 py-1 text-white w-16 text-sm"
+                        />
+                        <span className="text-slate-300">px</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </>
           )}
 
           {activeTab === 'buttons' && (
@@ -692,6 +923,42 @@ export const ContestInterface = () => {
                   <div
                     className="resize-handle absolute -bottom-2 -right-2 w-4 h-4 bg-orange-500 rounded-full cursor-nw-resize opacity-80 hover:opacity-100 border-2 border-white shadow-md"
                     onMouseDown={(e) => handleMouseDown(e, element.id)}
+                  />
+                )}
+              </div>
+            ))}
+
+            {/* Custom image elements overlay */}
+            {imageElements.map((element) => (
+              <div
+                key={element.id}
+                className={`absolute cursor-move select-none group ${
+                  selectedImageElement === element.id ? 'ring-2 ring-orange-500' : ''
+                }`}
+                style={{
+                  left: `${element.x}px`,
+                  top: `${element.y}px`,
+                  zIndex: 45
+                }}
+                onMouseDown={(e) => handleImageMouseDown(e, element.id)}
+              >
+                <img
+                  src={element.src}
+                  alt={`Image ${element.id}`}
+                  style={{
+                    width: `${element.width}px`,
+                    height: `${element.height}px`,
+                    objectFit: 'cover',
+                    borderRadius: '4px'
+                  }}
+                  draggable={false}
+                />
+                
+                {/* Resize handle - only show when selected */}
+                {selectedImageElement === element.id && (
+                  <div
+                    className="resize-handle-image absolute -bottom-2 -right-2 w-4 h-4 bg-orange-500 rounded-full cursor-nw-resize opacity-80 hover:opacity-100 border-2 border-white shadow-md"
+                    onMouseDown={(e) => handleImageMouseDown(e, element.id)}
                   />
                 )}
               </div>
