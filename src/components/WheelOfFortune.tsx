@@ -181,7 +181,7 @@ export const WheelOfFortune: React.FC<WheelOfFortuneProps> = ({
           </div>
 
           {gameState === 'result' && (
-            <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-2xl max-w-md mx-auto animate-fade-in">
+            <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-2xl max-w-md mx-auto animate-fade-in mt-8">
               <h3 className="text-2xl font-bold text-contest-text mb-2">🎉 Bravo !</h3>
               <p className="text-xl font-bold text-contest-red mb-3">
                 {result}
@@ -189,13 +189,16 @@ export const WheelOfFortune: React.FC<WheelOfFortuneProps> = ({
               <p className="text-sm text-contest-text/80 mb-4">
                 Votre prix vous sera envoyé sous 48h.
               </p>
-              <Button
-                onClick={resetGame}
-                variant="contest"
-                size="sm"
-              >
-                🎲 Rejouer
-              </Button>
+              <div className="flex gap-3 justify-center">
+                <Button
+                  onClick={resetGame}
+                  variant="contest"
+                  size="lg"
+                  className="px-6 py-3"
+                >
+                  🎲 Rejouer
+                </Button>
+              </div>
             </div>
           )}
         </div>
