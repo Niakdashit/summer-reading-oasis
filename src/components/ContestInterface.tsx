@@ -73,34 +73,57 @@ export const ContestInterface = () => {
     const element = textElements.find(el => el.id === elementId);
     if (!element) return;
 
-    // Limiter le déplacement à la zone bannière en mode 1
-    const bannerElement = config.mode === 1 ? 
-      e.currentTarget.closest('.preview-container').querySelector('.banner-zone') : 
-      e.currentTarget.closest('.preview-container');
+    // Check if it's a resize handle
+    const isResizeHandle = e.target.classList.contains('resize-handle');
     
-    if (!bannerElement) return;
+    if (isResizeHandle) {
+      // Handle resizing
+      const startSize = element.fontSize;
+      const startY = e.clientY;
 
-    const containerRect = bannerElement.getBoundingClientRect();
-    const startX = e.clientX - containerRect.left - element.x;
-    const startY = e.clientY - containerRect.top - element.y;
+      const handleMouseMove = (e) => {
+        const deltaY = startY - e.clientY; // Inverse for intuitive resizing
+        const newSize = Math.max(8, Math.min(72, startSize + deltaY * 0.5));
+        updateTextElement(elementId, { fontSize: Math.round(newSize) });
+      };
 
-    const handleMouseMove = (e) => {
-      const newX = e.clientX - containerRect.left - startX;
-      const newY = e.clientY - containerRect.top - startY;
+      const handleMouseUp = () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      };
+
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    } else {
+      // Handle dragging
+      const bannerElement = config.mode === 1 ? 
+        e.currentTarget.closest('.preview-container').querySelector('.banner-zone') : 
+        e.currentTarget.closest('.preview-container');
       
-      updateTextElement(elementId, { 
-        x: Math.max(0, Math.min(newX, containerRect.width - 100)), 
-        y: Math.max(0, Math.min(newY, containerRect.height - 30))
-      });
-    };
+      if (!bannerElement) return;
 
-    const handleMouseUp = () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-    };
+      const containerRect = bannerElement.getBoundingClientRect();
+      const startX = e.clientX - containerRect.left - element.x;
+      const startY = e.clientY - containerRect.top - element.y;
 
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
+      const handleMouseMove = (e) => {
+        const newX = e.clientX - containerRect.left - startX;
+        const newY = e.clientY - containerRect.top - startY;
+        
+        updateTextElement(elementId, { 
+          x: Math.max(0, Math.min(newX, containerRect.width - 100)), 
+          y: Math.max(0, Math.min(newY, containerRect.height - 30))
+        });
+      };
+
+      const handleMouseUp = () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      };
+
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    }
   };
 
   const configTabs = [
@@ -345,9 +368,17 @@ export const ContestInterface = () => {
                         className="bg-slate-700 border border-slate-500 rounded px-2 py-1 text-white w-full text-sm"
                       >
                         <option value="inter">Inter (Sans-serif)</option>
-                        <option value="playfair">Playfair Display (Serif)</option>
+                        <option value="opensans">Open Sans (Sans-serif)</option>
+                        <option value="lato">Lato (Sans-serif)</option>
                         <option value="roboto">Roboto (Sans-serif)</option>
                         <option value="montserrat">Montserrat (Sans-serif)</option>
+                        <option value="poppins">Poppins (Sans-serif)</option>
+                        <option value="nunito">Nunito (Sans-serif)</option>
+                        <option value="oswald">Oswald (Sans-serif)</option>
+                        <option value="playfair">Playfair Display (Serif)</option>
+                        <option value="dancing">Dancing Script (Script)</option>
+                        <option value="pacifico">Pacifico (Script)</option>
+                        <option value="lobster">Lobster (Script)</option>
                       </select>
                     </div>
                     
@@ -512,7 +543,7 @@ export const ContestInterface = () => {
             {textElements.map((element) => (
               <div
                 key={element.id}
-                className={`absolute cursor-move select-none ${
+                className={`absolute cursor-move select-none group ${
                   selectedElement === element.id ? 'ring-2 ring-orange-500' : ''
                 } font-${element.fontFamily}`}
                 style={{
@@ -526,6 +557,14 @@ export const ContestInterface = () => {
                 onMouseDown={(e) => handleMouseDown(e, element.id)}
               >
                 {element.text}
+                
+                {/* Resize handle - only show when selected */}
+                {selectedElement === element.id && (
+                  <div
+                    className="resize-handle absolute -bottom-2 -right-2 w-4 h-4 bg-orange-500 rounded-full cursor-nw-resize opacity-80 hover:opacity-100 border-2 border-white shadow-md"
+                    onMouseDown={(e) => handleMouseDown(e, element.id)}
+                  />
+                )}
               </div>
             ))}
             
