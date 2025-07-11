@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Facebook, X, Settings, Type, MousePointer, Code, Image, Monitor, Tablet, Smartphone, RotateCcw } from 'lucide-react';
 import beachImage from '@/assets/beach-reading-banner.jpg';
+import { WheelOfFortune } from './WheelOfFortune';
 export const ContestInterface = () => {
   const [activeTab, setActiveTab] = useState('general');
   const [previewMode, setPreviewMode] = useState('desktop');
@@ -22,6 +23,7 @@ export const ContestInterface = () => {
   // Configuration states
   const [config, setConfig] = useState({
     mode: 1,
+    displayMode: 1, // 1 = Mode séquentiel, 2 = Mode avec roue visible
     // 1 = bannière + texte, 2 = fond seul
     width: 810,
     height: 1200,
@@ -397,6 +399,13 @@ export const ContestInterface = () => {
         {/* Configuration Content */}
         <div className="p-4 bg-slate-600 space-y-4 max-h-96 overflow-y-auto">
           {activeTab === 'general' && <>
+              <div>
+                <label className="block text-sm font-medium mb-2">Mode de jeu</label>
+                <select value={config.displayMode} onChange={e => updateConfig('displayMode', parseInt(e.target.value))} className="bg-slate-700 border border-slate-500 rounded px-3 py-1 text-white w-full">
+                  <option value={1}>Mode 1 - Séquentiel (Description → Formulaire → Roue)</option>
+                  <option value={2}>Mode 2 - Roue visible (Modal formulaire)</option>
+                </select>
+              </div>
               <div>
                 <label className="block text-sm font-medium mb-2">Mode d'affichage</label>
                 <select value={config.mode} onChange={e => updateConfig('mode', parseInt(e.target.value))} className="bg-slate-700 border border-slate-500 rounded px-3 py-1 text-white w-full">
@@ -857,15 +866,12 @@ export const ContestInterface = () => {
                     </Button>
                   </div>
 
-                  {/* Title overlays centered */}
-                  <div className="flex flex-col items-center justify-center">
-                    
-                    
-                  </div>
-                </div>
-              </>}
-          </div>
-        </div>
-      </div>
-    </div>;
-};
+                   {/* Wheel of Fortune Game */}
+                   <WheelOfFortune mode={config.displayMode as 1 | 2} />
+                 </div>
+               </>}
+           </div>
+         </div>
+       </div>
+     </div>;
+ };

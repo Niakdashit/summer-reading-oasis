@@ -45,6 +45,9 @@ All colors MUST be HSL.
     --contest-shadow: 0 0% 20%;
     --contest-text: 0 0% 10%;
 
+    /* Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
     /* Layout colors */
     --outer-bg: 200 20% 15%;
     --contest-bg: 0 0% 100%;
