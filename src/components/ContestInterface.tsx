@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Facebook, X, Settings, Type, MousePointer, Code, Image } from 'lucide-react';
+import { Facebook, X, Settings, Type, MousePointer, Code, Image, Monitor, Tablet, Smartphone, RotateCcw } from 'lucide-react';
 import beachImage from '@/assets/beach-reading-banner.jpg';
 
 export const ContestInterface = () => {
   const [activeTab, setActiveTab] = useState('general');
+  const [previewMode, setPreviewMode] = useState('desktop');
 
   const configTabs = [
     { id: 'general', label: 'Général', icon: Settings },
@@ -94,9 +95,49 @@ export const ContestInterface = () => {
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex items-center justify-center p-4">
-        {/* Contest iframe simulation */}
-        <div className="w-full max-w-2xl bg-contest-bg rounded-lg shadow-2xl overflow-hidden">
+      <div className="flex-1 flex flex-col">
+        {/* Preview Mode Controls */}
+        <div className="bg-slate-800 p-4 flex items-center justify-center gap-4 border-b border-slate-600">
+          <div className="flex items-center gap-2 bg-slate-700 rounded-lg p-1">
+            <Button
+              variant={previewMode === 'desktop' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setPreviewMode('desktop')}
+              className={previewMode === 'desktop' ? 'bg-blue-600 hover:bg-blue-500' : 'text-slate-300 hover:text-white'}
+            >
+              <Monitor className="w-4 h-4" />
+            </Button>
+            <Button
+              variant={previewMode === 'tablet' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setPreviewMode('tablet')}
+              className={previewMode === 'tablet' ? 'bg-blue-600 hover:bg-blue-500' : 'text-slate-300 hover:text-white'}
+            >
+              <Tablet className="w-4 h-4" />
+            </Button>
+            <Button
+              variant={previewMode === 'mobile' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setPreviewMode('mobile')}
+              className={previewMode === 'mobile' ? 'bg-blue-600 hover:bg-blue-500' : 'text-slate-300 hover:text-white'}
+            >
+              <Smartphone className="w-4 h-4" />
+            </Button>
+          </div>
+          <Button variant="ghost" size="sm" className="text-slate-300 hover:text-white">
+            <RotateCcw className="w-4 h-4 mr-2" />
+            Rafraîchir
+          </Button>
+        </div>
+
+        {/* Preview Area */}
+        <div className="flex-1 flex items-center justify-center p-4 bg-slate-800">
+          {/* Contest iframe simulation with responsive preview */}
+          <div className={`bg-contest-bg rounded-lg shadow-2xl overflow-hidden transition-all duration-300 ${
+            previewMode === 'desktop' ? 'w-full max-w-4xl' :
+            previewMode === 'tablet' ? 'w-full max-w-2xl' :
+            'w-full max-w-sm'
+          }`}>
         {/* Header with banner */}
         <div className="relative">
           {/* Social icons and rules button overlay */}
@@ -173,7 +214,8 @@ export const ContestInterface = () => {
             </Button>
           </div>
         </div>
-      </div>
+          </div>
+        </div>
       </div>
     </div>
   );
