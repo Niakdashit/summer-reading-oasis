@@ -140,83 +140,16 @@ export const WheelOfFortune: React.FC<WheelOfFortuneProps> = ({
     );
   };
 
-  // Mode 1: Sequential flow
+  // Mode 1: Just the wheel component (no background, no layout)
   if (mode === 1) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-contest-pink via-contest-beige to-contest-pink flex flex-col items-center justify-center p-8">
-        <div className="max-w-2xl w-full">
-          {gameState === 'initial' && (
-            <div className="text-center space-y-8 animate-fade-in">
-              <div className="space-y-4">
-                <h1 className="text-4xl md:text-6xl font-bold text-contest-text">
-                  🎡 Roue de la Fortune
-                </h1>
-                <p className="text-xl text-contest-text/80 max-w-lg mx-auto">
-                  Tentez votre chance et remportez des prix extraordinaires ! 
-                  Livres gratuits, réductions exclusives et bien plus encore vous attendent.
-                </p>
-              </div>
-              <Button
-                onClick={() => setGameState('form')}
-                variant="contest"
-                size="xl"
-                className="animate-pulse hover:animate-none"
-              >
-                🎯 Participer Maintenant
-              </Button>
-            </div>
-          )}
-
-          {gameState === 'form' && (
-            <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 shadow-2xl animate-scale-in">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-contest-text">Vos informations</h2>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setGameState('initial')}
-                >
-                  <X className="w-5 h-5" />
-                </Button>
-              </div>
-              <ContactForm onSubmit={handleFormSubmit} />
-            </div>
-          )}
-
-          {gameState === 'wheel' && (
-            <div className="text-center space-y-8 animate-scale-in">
-              <h2 className="text-3xl font-bold text-contest-text">C'est parti !</h2>
-              <div className="flex justify-center">
-                {renderWheel()}
-              </div>
-              <p className="text-lg text-contest-text/80">
-                Cliquez sur le bouton central pour faire tourner la roue !
-              </p>
-            </div>
-          )}
-
-          {gameState === 'result' && (
-            <div className="text-center space-y-8 animate-fade-in">
-              <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 shadow-2xl">
-                <h2 className="text-3xl font-bold text-contest-text mb-4">🎉 Félicitations !</h2>
-                <div className="text-6xl mb-4">🏆</div>
-                <p className="text-2xl font-bold text-contest-red mb-4">
-                  Vous avez gagné : {result}
-                </p>
-                <p className="text-contest-text/80 mb-6">
-                  Votre prix vous sera envoyé sous 48h à l'adresse que vous avez renseignée.
-                </p>
-                <Button
-                  onClick={resetGame}
-                  variant="contest"
-                  size="lg"
-                >
-                  🎲 Rejouer
-                </Button>
-              </div>
-            </div>
-          )}
+      <div className="text-center space-y-8">
+        <div className="flex justify-center">
+          {renderWheel()}
         </div>
+        <p className="text-lg">
+          Cliquez sur le bouton central pour faire tourner la roue !
+        </p>
       </div>
     );
   }

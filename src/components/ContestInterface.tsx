@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Facebook, X, Settings, Type, MousePointer, Code, Image, Monitor, Tablet, Smartphone, RotateCcw } from 'lucide-react';
 import beachImage from '@/assets/beach-reading-banner.jpg';
 import { WheelOfFortune } from './WheelOfFortune';
+import { ContactForm } from './ContactForm';
 export const ContestInterface = () => {
   const [activeTab, setActiveTab] = useState('general');
   const [previewMode, setPreviewMode] = useState('desktop');
@@ -19,6 +20,9 @@ export const ContestInterface = () => {
   // Image elements state
   const [imageElements, setImageElements] = useState([]);
   const [selectedImageElement, setSelectedImageElement] = useState(null);
+
+  // Game state for Mode 1 sequential logic
+  const [gameStep, setGameStep] = useState('description'); // description, form, wheel, result
 
   // Configuration states
   const [config, setConfig] = useState({
@@ -49,6 +53,24 @@ export const ContestInterface = () => {
       ...prev,
       [key]: value
     }));
+  };
+
+  // Game logic for Mode 1
+  const handleParticipate = () => {
+    setGameStep('form');
+  };
+
+  const handleFormSubmit = (formData: any) => {
+    console.log('Form submitted:', formData);
+    setGameStep('wheel');
+  };
+
+  const handleGameComplete = () => {
+    setGameStep('result');
+  };
+
+  const handlePlayAgain = () => {
+    setGameStep('description');
   };
 
   // Text management functions
@@ -798,50 +820,110 @@ export const ContestInterface = () => {
                 <div style={{
               padding: `${config.padding}px`
             }}>
-                  {/* Description text */}
-                  <div className="prose prose-lg max-w-none mb-8">
-                    {editingDescription ? <textarea value={config.descriptionText} onChange={e => updateConfig('descriptionText', e.target.value)} onBlur={() => setEditingDescription(false)} onKeyDown={e => {
-                  if (e.key === 'Escape') {
-                    setEditingDescription(false);
-                  }
-                }} className={`w-full bg-transparent border border-blue-300 rounded p-2 leading-relaxed text-justify resize-none ${config.textSize}`} style={{
-                  color: config.textColor,
-                  minHeight: '120px'
-                }} autoFocus /> : <p className={`leading-relaxed text-justify cursor-pointer hover:bg-gray-100 hover:bg-opacity-20 p-2 rounded transition-colors ${config.textSize}`} style={{
-                  color: config.textColor
-                }} onDoubleClick={() => setEditingDescription(true)} title="Double-cliquez pour modifier">
-                        {config.descriptionText}
-                      </p>}
-                  </div>
+                  {/* Description and static content - only show in description step for Mode 1 */}
+                  {(config.displayMode !== 1 || gameStep === 'description') && (
+                    <>
+                      {/* Description text */}
+                      <div className="prose prose-lg max-w-none mb-8">
+                        {editingDescription ? <textarea value={config.descriptionText} onChange={e => updateConfig('descriptionText', e.target.value)} onBlur={() => setEditingDescription(false)} onKeyDown={e => {
+                      if (e.key === 'Escape') {
+                        setEditingDescription(false);
+                      }
+                    }} className={`w-full bg-transparent border border-blue-300 rounded p-2 leading-relaxed text-justify resize-none ${config.textSize}`} style={{
+                      color: config.textColor,
+                      minHeight: '120px'
+                    }} autoFocus /> : <p className={`leading-relaxed text-justify cursor-pointer hover:bg-gray-100 hover:bg-opacity-20 p-2 rounded transition-colors ${config.textSize}`} style={{
+                      color: config.textColor
+                    }} onDoubleClick={() => setEditingDescription(true)} title="Double-cliquez pour modifier">
+                            {config.descriptionText}
+                          </p>}
+                      </div>
 
-                  {/* Publisher link */}
-                  <div className="text-center mb-6">
-                    <a href="https://editions.flammarion.com" className="font-bold hover:underline text-lg" style={{
-                  color: config.linkColor
-                }} target="_blank" rel="noopener noreferrer">
-                      editions.flammarion.com
-                    </a>
-                  </div>
+                      {/* Publisher link */}
+                      <div className="text-center mb-6">
+                        <a href="https://editions.flammarion.com" className="font-bold hover:underline text-lg" style={{
+                      color: config.linkColor
+                    }} target="_blank" rel="noopener noreferrer">
+                          editions.flammarion.com
+                        </a>
+                      </div>
 
-                  {/* Prize description */}
-                  <div className="text-center mb-8">
-                    <p className="font-bold italic" style={{
-                  color: config.textColor
-                }}>
-                      Jouez et tentez de remporter l'un des 10 exemplaires de "Les notes invisibles" d'une valeur unitaire de 21 euros !
-                    </p>
-                  </div>
+                      {/* Prize description */}
+                      <div className="text-center mb-8">
+                        <p className="font-bold italic" style={{
+                      color: config.textColor
+                    }}>
+                          Jouez et tentez de remporter l'un des 10 exemplaires de "Les notes invisibles" d'une valeur unitaire de 21 euros !
+                        </p>
+                      </div>
+                    </>
+                  )}
 
-                  {/* CTA Button */}
-                  <div className="text-center">
-                    <button className="px-8 py-4 font-bold text-lg min-w-48 transition-all duration-200 hover:scale-105" style={{
-                  backgroundColor: config.buttonColor,
-                  color: config.buttonTextColor,
-                  borderRadius: `${config.borderRadius}px`
-                }}>
-                      PARTICIPER !
-                    </button>
-                  </div>
+                  {/* Game Content based on step */}
+                  {config.displayMode === 1 && gameStep === 'description' && (
+                    <div className="text-center">
+                      <button 
+                        onClick={handleParticipate}
+                        className="px-8 py-4 font-bold text-lg min-w-48 transition-all duration-200 hover:scale-105" 
+                        style={{
+                          backgroundColor: config.buttonColor,
+                          color: config.buttonTextColor,
+                          borderRadius: `${config.borderRadius}px`
+                        }}
+                      >
+                        PARTICIPER !
+                      </button>
+                    </div>
+                  )}
+
+                  {config.displayMode === 1 && gameStep === 'form' && (
+                    <div className="max-w-md mx-auto">
+                      <ContactForm onSubmit={handleFormSubmit} />
+                    </div>
+                  )}
+
+                  {config.displayMode === 1 && gameStep === 'wheel' && (
+                    <div className="text-center">
+                      <WheelOfFortune 
+                        mode={1} 
+                        onGameComplete={handleGameComplete}
+                      />
+                    </div>
+                  )}
+
+                  {config.displayMode === 1 && gameStep === 'result' && (
+                    <div className="text-center space-y-4">
+                      <h3 className="text-2xl font-bold" style={{ color: config.titleColor }}>
+                        Merci d'avoir participé !
+                      </h3>
+                      <p style={{ color: config.textColor }}>
+                        Vous recevrez un email de confirmation avec les détails de votre participation.
+                      </p>
+                      <button 
+                        onClick={handlePlayAgain}
+                        className="px-8 py-4 font-bold text-lg min-w-48 transition-all duration-200 hover:scale-105" 
+                        style={{
+                          backgroundColor: config.buttonColor,
+                          color: config.buttonTextColor,
+                          borderRadius: `${config.borderRadius}px`
+                        }}
+                      >
+                        JOUER ENCORE
+                      </button>
+                    </div>
+                  )}
+
+                  {config.displayMode === 2 && (
+                    <div className="text-center">
+                      <button className="px-8 py-4 font-bold text-lg min-w-48 transition-all duration-200 hover:scale-105" style={{
+                        backgroundColor: config.buttonColor,
+                        color: config.buttonTextColor,
+                        borderRadius: `${config.borderRadius}px`
+                      }}>
+                        PARTICIPER !
+                      </button>
+                    </div>
+                  )}
                 </div>
               </> : <>
                 {/* Mode 2: Full background only */}
