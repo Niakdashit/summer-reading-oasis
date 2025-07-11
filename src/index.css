@@ -49,21 +49,6 @@ All colors MUST be HSL.
     --outer-bg: 200 20% 15%;
     --contest-bg: 0 0% 100%;
 
-    /* Studio-level sidebar design system */
-    --studio-bg: 255 255 255;
-    --studio-surface: 248 250 252;
-    --studio-border: 226 232 240;
-    --studio-text-primary: 15 23 42;
-    --studio-text-secondary: 71 85 105;
-    --studio-text-muted: 148 163 184;
-    --studio-accent: 99 102 241;
-    --studio-accent-soft: 238 242 255;
-    --studio-success: 34 197 94;
-    --studio-warning: 245 158 11;
-    --studio-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-    --studio-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-    --studio-gradient: linear-gradient(135deg, hsl(var(--studio-accent)) 0%, hsl(var(--studio-accent)) 100%);
-
     --sidebar-background: 0 0% 98%;
 
     --sidebar-foreground: 240 5.3% 26.1%;
