@@ -55,6 +55,7 @@ export const WheelOfFortune: React.FC<WheelOfFortuneProps> = ({
       setIsSpinning(false);
       setResult(segments[randomSegment].text);
       setGameState('result');
+      console.log('Game state changed to result, should show button now');
       onGameComplete?.(segments[randomSegment].text);
     }, 3000);
   };
@@ -181,20 +182,23 @@ export const WheelOfFortune: React.FC<WheelOfFortuneProps> = ({
           </div>
 
           {gameState === 'result' && (
-            <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-2xl max-w-md mx-auto animate-fade-in mt-8">
+            <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-2xl max-w-md mx-auto animate-fade-in mt-8 border-2 border-contest-red">
               <h3 className="text-2xl font-bold text-contest-text mb-2">🎉 Bravo !</h3>
               <p className="text-xl font-bold text-contest-red mb-3">
-                {result}
+                Vous avez gagné : {result}
               </p>
               <p className="text-sm text-contest-text/80 mb-4">
                 Votre prix vous sera envoyé sous 48h.
               </p>
               <div className="flex gap-3 justify-center">
                 <Button
-                  onClick={resetGame}
+                  onClick={() => {
+                    console.log('Rejouer clicked');
+                    resetGame();
+                  }}
                   variant="contest"
                   size="lg"
-                  className="px-6 py-3"
+                  className="px-8 py-4 text-lg font-bold"
                 >
                   🎲 Rejouer
                 </Button>
