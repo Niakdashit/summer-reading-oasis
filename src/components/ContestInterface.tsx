@@ -859,20 +859,8 @@ export const ContestInterface = () => {
 
                   {/* Title overlays centered */}
                   <div className="flex flex-col items-center justify-center">
-                    <div className="px-6 py-2 rounded-md mb-2 backdrop-blur-sm" style={{
-                  backgroundColor: config.titleColor + '90'
-                }}>
-                      <h1 className={`font-bold text-white ${config.titleSize}`}>
-                        GRAND JEU
-                      </h1>
-                    </div>
-                    <div className="px-8 py-2 rounded-md backdrop-blur-sm" style={{
-                  backgroundColor: config.subtitleColor + '90'
-                }}>
-                      <h2 className={`font-semibold text-white ${config.subtitleSize}`}>
-                        LECTURES DE L'ÉTÉ
-                      </h2>
-                    </div>
+                    
+                    
                   </div>
                 </div>
               </>}
