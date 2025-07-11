@@ -10,6 +10,8 @@ export const ContestInterface = () => {
   // Text elements state
   const [textElements, setTextElements] = useState([]);
   const [selectedElement, setSelectedElement] = useState(null);
+  const [editingElement, setEditingElement] = useState(null);
+  const [snapGuides, setSnapGuides] = useState({ horizontal: [], vertical: [] });
   
   // Configuration states
   const [config, setConfig] = useState({
@@ -29,8 +31,11 @@ export const ContestInterface = () => {
     padding: 24,
     titleSize: 'text-2xl md:text-3xl lg:text-4xl',
     subtitleSize: 'text-lg md:text-xl lg:text-2xl',
-    textSize: 'text-base'
+    textSize: 'text-base',
+    descriptionText: `Valentine et son frère aîné, Antoine, ont 13 ans d'écart. Orphelins de mère, ils viennent de perdre leur père, César Mestre. Le jour des obsèques, une inconnue leur remet une lettre de leur père. La lettre n'explicite pas grand-chose, mais évoque une fracture, des réparations qui n'ont pas eu le temps d'être faites. Antoine s'en détourne vite et retourne à sa vie rangée avec sa femme et ses enfants. Mais Valentine ne reconnaît pas dans ces lignes l'enfance qu'elle a vécue et se donne pour mission de comprendre ce que leur père a voulu leur dire et va enquêter. À son récit s'enchâsse celui de Laure, factrice à Loisel, un petit village normand, et qui vient de faire la connaissance de César. Elle s'est réfugiée là quatre ans plus tôt, après une dépression, et laissant la garde de son fils à son ex-mari, fils avec lequel elle tente peu à peu de renouer un lien fort. Le destin des deux femmes va se croiser.`
   });
+  
+  const [editingDescription, setEditingDescription] = useState(false);
 
   const updateConfig = (key: string, value: any) => {
     setConfig(prev => ({ ...prev, [key]: value }));
@@ -66,6 +71,66 @@ export const ContestInterface = () => {
     }
   };
 
+  // Function to calculate snap guides
+  const calculateSnapGuides = (elementId, newX, newY, containerRect) => {
+    const snapTolerance = 10;
+    const guides = { horizontal: [], vertical: [] };
+    
+    // Center guides
+    const centerX = containerRect.width / 2;
+    const centerY = containerRect.height / 2;
+    
+    // Edge guides
+    const leftEdge = 20;
+    const rightEdge = containerRect.width - 20;
+    const topEdge = 20;
+    const bottomEdge = containerRect.height - 20;
+    
+    // Snap to center
+    if (Math.abs(newX - centerX) < snapTolerance) {
+      guides.vertical.push(centerX);
+      newX = centerX;
+    }
+    if (Math.abs(newY - centerY) < snapTolerance) {
+      guides.horizontal.push(centerY);
+      newY = centerY;
+    }
+    
+    // Snap to edges
+    if (Math.abs(newX - leftEdge) < snapTolerance) {
+      guides.vertical.push(leftEdge);
+      newX = leftEdge;
+    }
+    if (Math.abs(newX - rightEdge) < snapTolerance) {
+      guides.vertical.push(rightEdge);
+      newX = rightEdge;
+    }
+    if (Math.abs(newY - topEdge) < snapTolerance) {
+      guides.horizontal.push(topEdge);
+      newY = topEdge;
+    }
+    if (Math.abs(newY - bottomEdge) < snapTolerance) {
+      guides.horizontal.push(bottomEdge);
+      newY = bottomEdge;
+    }
+    
+    // Snap to other elements
+    textElements.forEach(el => {
+      if (el.id !== elementId) {
+        if (Math.abs(newX - el.x) < snapTolerance) {
+          guides.vertical.push(el.x);
+          newX = el.x;
+        }
+        if (Math.abs(newY - el.y) < snapTolerance) {
+          guides.horizontal.push(el.y);
+          newY = el.y;
+        }
+      }
+    });
+    
+    return { newX, newY, guides };
+  };
+
   const handleMouseDown = (e, elementId) => {
     e.preventDefault();
     setSelectedElement(elementId);
@@ -90,6 +155,7 @@ export const ContestInterface = () => {
       const handleMouseUp = () => {
         document.removeEventListener('mousemove', handleMouseMove);
         document.removeEventListener('mouseup', handleMouseUp);
+        setSnapGuides({ horizontal: [], vertical: [] });
       };
 
       document.addEventListener('mousemove', handleMouseMove);
@@ -107,8 +173,14 @@ export const ContestInterface = () => {
       const startY = e.clientY - containerRect.top - element.y;
 
       const handleMouseMove = (e) => {
-        const newX = e.clientX - containerRect.left - startX;
-        const newY = e.clientY - containerRect.top - startY;
+        let newX = e.clientX - containerRect.left - startX;
+        let newY = e.clientY - containerRect.top - startY;
+        
+        // Calculate snap guides and adjust position
+        const snapResult = calculateSnapGuides(elementId, newX, newY, containerRect);
+        newX = snapResult.newX;
+        newY = snapResult.newY;
+        setSnapGuides(snapResult.guides);
         
         updateTextElement(elementId, { 
           x: Math.max(0, Math.min(newX, containerRect.width - 100)), 
@@ -119,11 +191,29 @@ export const ContestInterface = () => {
       const handleMouseUp = () => {
         document.removeEventListener('mousemove', handleMouseMove);
         document.removeEventListener('mouseup', handleMouseUp);
+        setSnapGuides({ horizontal: [], vertical: [] });
       };
 
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
     }
+  };
+
+  // Function to handle double-click for inline editing
+  const handleDoubleClick = (elementId) => {
+    setEditingElement(elementId);
+  };
+
+  // Function to handle text editing
+  const handleTextEdit = (elementId, newText) => {
+    updateTextElement(elementId, { text: newText });
+    setEditingElement(null);
+  };
+
+  // Function to handle description text editing
+  const handleDescriptionEdit = (newText) => {
+    // For now, we'll just store it in config - you could extend this
+    updateConfig('descriptionText', newText);
   };
 
   const configTabs = [
@@ -539,6 +629,22 @@ export const ContestInterface = () => {
               height: config.mode === 2 && previewMode === 'desktop' ? 'auto' : undefined
             }}
           >
+            {/* Snap guides */}
+            {snapGuides.vertical.map((x, index) => (
+              <div
+                key={`v-${index}`}
+                className="absolute top-0 bottom-0 w-0.5 bg-blue-400 opacity-60 pointer-events-none z-40"
+                style={{ left: `${x}px` }}
+              />
+            ))}
+            {snapGuides.horizontal.map((y, index) => (
+              <div
+                key={`h-${index}`}
+                className="absolute left-0 right-0 h-0.5 bg-blue-400 opacity-60 pointer-events-none z-40"
+                style={{ top: `${y}px` }}
+              />
+            ))}
+
             {/* Custom text elements overlay */}
             {textElements.map((element) => (
               <div
@@ -555,11 +661,34 @@ export const ContestInterface = () => {
                   zIndex: 50
                 }}
                 onMouseDown={(e) => handleMouseDown(e, element.id)}
+                onDoubleClick={() => handleDoubleClick(element.id)}
               >
-                {element.text}
+                {editingElement === element.id ? (
+                  <input
+                    type="text"
+                    value={element.text}
+                    onChange={(e) => updateTextElement(element.id, { text: e.target.value })}
+                    onBlur={() => setEditingElement(null)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        setEditingElement(null);
+                      }
+                    }}
+                    className="bg-transparent border-none outline-none text-current"
+                    style={{
+                      fontSize: `${element.fontSize}px`,
+                      color: element.color,
+                      fontWeight: element.fontWeight,
+                      fontFamily: element.fontFamily
+                    }}
+                    autoFocus
+                  />
+                ) : (
+                  element.text
+                )}
                 
                 {/* Resize handle - only show when selected */}
-                {selectedElement === element.id && (
+                {selectedElement === element.id && !editingElement && (
                   <div
                     className="resize-handle absolute -bottom-2 -right-2 w-4 h-4 bg-orange-500 rounded-full cursor-nw-resize opacity-80 hover:opacity-100 border-2 border-white shadow-md"
                     onMouseDown={(e) => handleMouseDown(e, element.id)}
@@ -615,12 +744,33 @@ export const ContestInterface = () => {
                 <div style={{ padding: `${config.padding}px` }}>
                   {/* Description text */}
                   <div className="prose prose-lg max-w-none mb-8">
-                    <p 
-                      className={`leading-relaxed text-justify ${config.textSize}`}
-                      style={{ color: config.textColor }}
-                    >
-                      Valentine et son frère aîné, Antoine, ont 13 ans d'écart. Orphelins de mère, ils viennent de perdre leur père, César Mestre. Le jour des obsèques, une inconnue leur remet une lettre de leur père. La lettre n'explicite pas grand-chose, mais évoque une fracture, des réparations qui n'ont pas eu le temps d'être faites. Antoine s'en détourne vite et retourne à sa vie rangée avec sa femme et ses enfants. Mais Valentine ne reconnaît pas dans ces lignes l'enfance qu'elle a vécue et se donne pour mission de comprendre ce que leur père a voulu leur dire et va enquêter. À son récit s'enchâsse celui de Laure, factrice à Loisel, un petit village normand, et qui vient de faire la connaissance de César. Elle s'est réfugiée là quatre ans plus tôt, après une dépression, et laissant la garde de son fils à son ex-mari, fils avec lequel elle tente peu à peu de renouer un lien fort. Le destin des deux femmes va se croiser.
-                    </p>
+                    {editingDescription ? (
+                      <textarea
+                        value={config.descriptionText}
+                        onChange={(e) => updateConfig('descriptionText', e.target.value)}
+                        onBlur={() => setEditingDescription(false)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Escape') {
+                            setEditingDescription(false);
+                          }
+                        }}
+                        className={`w-full bg-transparent border border-blue-300 rounded p-2 leading-relaxed text-justify resize-none ${config.textSize}`}
+                        style={{ 
+                          color: config.textColor,
+                          minHeight: '120px'
+                        }}
+                        autoFocus
+                      />
+                    ) : (
+                      <p 
+                        className={`leading-relaxed text-justify cursor-pointer hover:bg-gray-100 hover:bg-opacity-20 p-2 rounded transition-colors ${config.textSize}`}
+                        style={{ color: config.textColor }}
+                        onDoubleClick={() => setEditingDescription(true)}
+                        title="Double-cliquez pour modifier"
+                      >
+                        {config.descriptionText}
+                      </p>
+                    )}
                   </div>
 
                   {/* Publisher link */}
