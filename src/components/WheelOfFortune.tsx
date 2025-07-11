@@ -82,10 +82,10 @@ export const WheelOfFortune: React.FC<WheelOfFortuneProps> = ({
     const segmentAngle = 360 / segments.length;
     
     return (
-      <div className="relative">
+      <div className="relative w-full h-full">
         <div 
           ref={wheelRef}
-          className="relative w-80 h-80 rounded-full border-8 border-contest-shadow shadow-2xl overflow-hidden"
+          className="relative w-full h-full rounded-full border-4 md:border-8 border-contest-shadow shadow-2xl overflow-hidden"
           style={{
             transform: `rotate(${rotation}deg)`,
             transition: isSpinning ? 'transform 3s cubic-bezier(0.4, 0, 0.2, 1)' : 'none'
@@ -127,14 +127,14 @@ export const WheelOfFortune: React.FC<WheelOfFortuneProps> = ({
         </div>
         
         {/* Spin button */}
-        <div className="absolute inset-0 flex items-center justify-center">
+        <div className="absolute inset-0 flex items-center justify-center z-10">
           <Button
             onClick={spinWheel}
             disabled={isSpinning || (mode === 2 && gameState === 'initial')}
-            className="w-16 h-16 rounded-full bg-contest-red hover:bg-contest-red/90 text-white shadow-lg disabled:opacity-50"
+            className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-contest-red hover:bg-contest-red/90 text-white shadow-lg disabled:opacity-50"
             size="icon"
           >
-            <RotateCw className={`w-6 h-6 ${isSpinning ? 'animate-spin' : ''}`} />
+            <RotateCw className={`w-4 h-4 md:w-6 md:h-6 ${isSpinning ? 'animate-spin' : ''}`} />
           </Button>
         </div>
       </div>
@@ -155,72 +155,68 @@ export const WheelOfFortune: React.FC<WheelOfFortuneProps> = ({
     );
   }
 
-  // Mode 2: Wheel always visible with modal form
+  // Mode 2: Wheel always visible without background gradient
   return (
-    <div className="min-h-screen bg-gradient-to-br from-contest-pink via-contest-beige to-contest-pink relative overflow-hidden">
-      {/* Background decorative elements */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-20 left-20 text-8xl">📚</div>
-        <div className="absolute top-40 right-32 text-6xl">⭐</div>
-        <div className="absolute bottom-32 left-32 text-7xl">🎁</div>
-        <div className="absolute bottom-20 right-20 text-5xl">💎</div>
-      </div>
+    <div className="relative w-full h-full flex flex-col items-center justify-center p-4 md:p-8">
+      <div className="text-center space-y-4 md:space-y-8 max-w-4xl mx-auto">
+        <div className="space-y-2 md:space-y-4">
+          <h1 className="text-2xl md:text-4xl lg:text-6xl font-bold text-contest-text animate-fade-in">
+            🎡 Roue de la Fortune
+          </h1>
+          <p className="text-base md:text-xl text-contest-text/80 max-w-lg mx-auto animate-fade-in px-4">
+            {gameState === 'initial' ? 'Remplissez le formulaire pour pouvoir jouer !' : 
+             'Cliquez sur le bouton central pour faire tourner la roue !'}
+          </p>
+        </div>
 
-      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center p-8">
-        <div className="text-center space-y-8">
-          <div className="space-y-4">
-            <h1 className="text-4xl md:text-6xl font-bold text-contest-text animate-fade-in">
-              🎡 Roue de la Fortune
-            </h1>
-            <p className="text-xl text-contest-text/80 max-w-lg mx-auto animate-fade-in">
-              {gameState === 'initial' ? 'Remplissez le formulaire pour pouvoir jouer !' : 
-               'Cliquez sur le bouton central pour faire tourner la roue !'}
-            </p>
-          </div>
-
-          <div className="flex justify-center animate-scale-in">
+        <div className="relative flex justify-center animate-scale-in">
+          {/* Wheel container with fixed size that scales */}
+          <div className="relative w-72 h-72 md:w-80 md:h-80 lg:w-96 lg:h-96">
             {renderWheel()}
           </div>
 
-          {/* Participate button for mode 2 */}
-          {gameState === 'initial' && (
-            <div className="text-center mt-8">
-              <Button
-                onClick={() => setShowContactForm(true)}
-                variant="contest"
-                size="xl"
-                className="px-8 py-4 text-xl font-bold animate-pulse hover:animate-none"
-              >
-                🎯 Participer
-              </Button>
-            </div>
-          )}
-
+          {/* Result overlay - positioned over the wheel */}
           {gameState === 'result' && (
-            <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-2xl max-w-md mx-auto animate-fade-in mt-8 border-2 border-contest-red">
-              <h3 className="text-2xl font-bold text-contest-text mb-2">🎉 Bravo !</h3>
-              <p className="text-xl font-bold text-contest-red mb-3">
-                Vous avez gagné : {result}
-              </p>
-              <p className="text-sm text-contest-text/80 mb-4">
-                Votre prix vous sera envoyé sous 48h.
-              </p>
-              <div className="flex gap-3 justify-center">
-                <Button
-                  onClick={() => {
-                    console.log('Rejouer clicked');
-                    resetGame();
-                  }}
-                  variant="contest"
-                  size="lg"
-                  className="px-8 py-4 text-lg font-bold"
-                >
-                  🎲 Rejouer
-                </Button>
+            <div className="absolute inset-0 flex items-center justify-center z-20">
+              <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-4 md:p-6 shadow-2xl max-w-xs md:max-w-sm mx-4 animate-fade-in border-2 border-contest-red">
+                <h3 className="text-lg md:text-2xl font-bold text-contest-text mb-2">🎉 Bravo !</h3>
+                <p className="text-base md:text-xl font-bold text-contest-red mb-3">
+                  Vous avez gagné : {result}
+                </p>
+                <p className="text-xs md:text-sm text-contest-text/80 mb-4">
+                  Votre prix vous sera envoyé sous 48h.
+                </p>
+                <div className="flex justify-center">
+                  <Button
+                    onClick={() => {
+                      console.log('Rejouer clicked');
+                      resetGame();
+                    }}
+                    variant="contest"
+                    size="lg"
+                    className="px-4 md:px-8 py-2 md:py-4 text-sm md:text-lg font-bold"
+                  >
+                    🎲 REJOUER
+                  </Button>
+                </div>
               </div>
             </div>
           )}
         </div>
+
+        {/* Participate button for mode 2 */}
+        {gameState === 'initial' && (
+          <div className="text-center mt-4 md:mt-8">
+            <Button
+              onClick={() => setShowContactForm(true)}
+              variant="contest"
+              size="xl"
+              className="px-6 md:px-8 py-3 md:py-4 text-lg md:text-xl font-bold animate-pulse hover:animate-none"
+            >
+              🎯 Participer
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Modal for contact form in mode 2 */}
