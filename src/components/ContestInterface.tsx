@@ -1,13 +1,102 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Facebook, X } from 'lucide-react';
+import { Facebook, X, Settings, Type, MousePointer, Code, Image } from 'lucide-react';
 import beachImage from '@/assets/beach-reading-banner.jpg';
 
 export const ContestInterface = () => {
+  const [activeTab, setActiveTab] = useState('general');
+
+  const configTabs = [
+    { id: 'general', label: 'Général', icon: Settings },
+    { id: 'zone', label: 'Zone de jeu', icon: MousePointer },
+    { id: 'texts', label: 'Textes', icon: Type },
+    { id: 'buttons', label: 'Boutons', icon: MousePointer },
+    { id: 'code', label: 'Code personnalisé et tags', icon: Code },
+  ];
+
   return (
-    <div className="min-h-screen bg-outer-bg flex items-center justify-center p-4">
-      {/* Contest iframe simulation */}
-      <div className="w-full max-w-4xl bg-contest-bg rounded-lg shadow-2xl overflow-hidden">
+    <div className="min-h-screen bg-outer-bg flex">
+      {/* Configuration Panel */}
+      <div className="w-80 bg-slate-700 text-white flex flex-col">
+        {/* Header */}
+        <div className="p-4 border-b border-slate-600">
+          <h2 className="text-lg font-semibold text-orange-400">Iframe : Femme actuelle</h2>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex-1">
+          {configTabs.map((tab) => {
+            const Icon = tab.icon;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`w-full p-4 text-left flex items-center gap-3 border-b border-slate-600 hover:bg-slate-600 transition-colors ${
+                  activeTab === tab.id ? 'bg-orange-500 text-white' : 'text-slate-300'
+                }`}
+              >
+                <Icon className="w-4 h-4" />
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Configuration Content */}
+        <div className="p-4 bg-slate-600 space-y-4">
+          {activeTab === 'general' && (
+            <>
+              <div>
+                <label className="block text-sm font-medium mb-2">Largeur</label>
+                <div className="flex items-center gap-2">
+                  <input type="number" value="810" className="bg-slate-700 border border-slate-500 rounded px-3 py-1 text-white w-20" readOnly />
+                  <span className="text-slate-300">px</span>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Hauteur</label>
+                <div className="flex items-center gap-2">
+                  <input type="number" value="1200" className="bg-slate-700 border border-slate-500 rounded px-3 py-1 text-white w-20" readOnly />
+                  <span className="text-slate-300">px</span>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Ancre</label>
+                <select className="bg-slate-700 border border-slate-500 rounded px-3 py-1 text-white w-full">
+                  <option>Fixe</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Bannière (810 x free)</label>
+                <div className="bg-slate-700 border border-slate-500 rounded p-4 h-32 flex items-center justify-center">
+                  <div className="text-center">
+                    <Image className="w-8 h-8 mx-auto mb-2 text-slate-400" />
+                    <p className="text-sm text-slate-400">Description de l'image</p>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Bottom Actions */}
+        <div className="p-4 border-t border-slate-600 space-y-2">
+          <Button className="w-full bg-slate-600 hover:bg-slate-500 text-white">
+            ✕ Annuler
+          </Button>
+          <Button className="w-full bg-blue-600 hover:bg-blue-500 text-white">
+            💾 Sauvegarder le template
+          </Button>
+          <Button className="w-full bg-green-600 hover:bg-green-500 text-white">
+            ✓ Sauvegarder et quitter
+          </Button>
+        </div>
+      </div>
+
+      {/* Main Content Area */}
+      <div className="flex-1 flex items-center justify-center p-4">
+        {/* Contest iframe simulation */}
+        <div className="w-full max-w-2xl bg-contest-bg rounded-lg shadow-2xl overflow-hidden">
         {/* Header with banner */}
         <div className="relative">
           {/* Social icons and rules button overlay */}
@@ -84,6 +173,7 @@ export const ContestInterface = () => {
             </Button>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );
