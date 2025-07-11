@@ -65,8 +65,8 @@ export const WheelOfFortune: React.FC<WheelOfFortuneProps> = ({
     if (mode === 1) {
       setGameState('wheel');
     } else {
-      // In mode 2, the wheel is already visible, just enable spinning
-      setTimeout(spinWheel, 100);
+      // In mode 2, just close the modal and change state to 'wheel' so user can manually spin
+      setGameState('wheel');
     }
   };
 
@@ -129,7 +129,13 @@ export const WheelOfFortune: React.FC<WheelOfFortuneProps> = ({
         {/* Spin button */}
         <div className="absolute inset-0 flex items-center justify-center">
           <Button
-            onClick={mode === 2 && gameState === 'initial' ? () => setShowContactForm(true) : spinWheel}
+            onClick={() => {
+              if (mode === 2 && gameState === 'initial') {
+                setShowContactForm(true);
+              } else if (gameState === 'wheel' || gameState === 'initial') {
+                spinWheel();
+              }
+            }}
             disabled={isSpinning}
             className="w-16 h-16 rounded-full bg-contest-red hover:bg-contest-red/90 text-white shadow-lg"
             size="icon"
@@ -173,7 +179,9 @@ export const WheelOfFortune: React.FC<WheelOfFortuneProps> = ({
               🎡 Roue de la Fortune
             </h1>
             <p className="text-xl text-contest-text/80 max-w-lg mx-auto animate-fade-in">
-              Tournez la roue et découvrez votre cadeau !
+              {gameState === 'initial' ? 'Cliquez sur la roue pour commencer !' : 
+               gameState === 'wheel' ? 'Cliquez sur le bouton central pour faire tourner la roue !' :
+               'Tournez la roue et découvrez votre cadeau !'}
             </p>
           </div>
 
