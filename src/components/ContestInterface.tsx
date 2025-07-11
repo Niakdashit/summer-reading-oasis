@@ -6,6 +6,30 @@ import beachImage from '@/assets/beach-reading-banner.jpg';
 export const ContestInterface = () => {
   const [activeTab, setActiveTab] = useState('general');
   const [previewMode, setPreviewMode] = useState('desktop');
+  
+  // Configuration states
+  const [config, setConfig] = useState({
+    width: 810,
+    height: 1200,
+    anchor: 'fixe',
+    bannerImage: beachImage,
+    backgroundColor: '#ffffff',
+    titleColor: '#e91e63',
+    subtitleColor: '#ffc107',
+    textColor: '#000000',
+    linkColor: '#dc2626',
+    buttonColor: '#dc2626',
+    buttonTextColor: '#ffffff',
+    borderRadius: 8,
+    padding: 24,
+    titleSize: 'text-2xl md:text-3xl lg:text-4xl',
+    subtitleSize: 'text-lg md:text-xl lg:text-2xl',
+    textSize: 'text-base'
+  });
+
+  const updateConfig = (key: string, value: any) => {
+    setConfig(prev => ({ ...prev, [key]: value }));
+  };
 
   const configTabs = [
     { id: 'general', label: 'Général', icon: Settings },
@@ -44,37 +68,227 @@ export const ContestInterface = () => {
         </div>
 
         {/* Configuration Content */}
-        <div className="p-4 bg-slate-600 space-y-4">
+        <div className="p-4 bg-slate-600 space-y-4 max-h-96 overflow-y-auto">
           {activeTab === 'general' && (
             <>
               <div>
                 <label className="block text-sm font-medium mb-2">Largeur</label>
                 <div className="flex items-center gap-2">
-                  <input type="number" value="810" className="bg-slate-700 border border-slate-500 rounded px-3 py-1 text-white w-20" readOnly />
+                  <input 
+                    type="number" 
+                    value={config.width} 
+                    onChange={(e) => updateConfig('width', parseInt(e.target.value))}
+                    className="bg-slate-700 border border-slate-500 rounded px-3 py-1 text-white w-20" 
+                  />
                   <span className="text-slate-300">px</span>
                 </div>
               </div>
               <div>
                 <label className="block text-sm font-medium mb-2">Hauteur</label>
                 <div className="flex items-center gap-2">
-                  <input type="number" value="1200" className="bg-slate-700 border border-slate-500 rounded px-3 py-1 text-white w-20" readOnly />
+                  <input 
+                    type="number" 
+                    value={config.height} 
+                    onChange={(e) => updateConfig('height', parseInt(e.target.value))}
+                    className="bg-slate-700 border border-slate-500 rounded px-3 py-1 text-white w-20" 
+                  />
                   <span className="text-slate-300">px</span>
                 </div>
               </div>
               <div>
                 <label className="block text-sm font-medium mb-2">Ancre</label>
-                <select className="bg-slate-700 border border-slate-500 rounded px-3 py-1 text-white w-full">
-                  <option>Fixe</option>
+                <select 
+                  value={config.anchor} 
+                  onChange={(e) => updateConfig('anchor', e.target.value)}
+                  className="bg-slate-700 border border-slate-500 rounded px-3 py-1 text-white w-full"
+                >
+                  <option value="fixe">Fixe</option>
+                  <option value="center">Centré</option>
+                  <option value="top">Haut</option>
                 </select>
               </div>
               <div>
                 <label className="block text-sm font-medium mb-2">Bannière (810 x free)</label>
-                <div className="bg-slate-700 border border-slate-500 rounded p-4 h-32 flex items-center justify-center">
+                <div className="bg-slate-700 border border-slate-500 rounded p-4 h-32 flex items-center justify-center cursor-pointer hover:bg-slate-600 transition-colors">
                   <div className="text-center">
                     <Image className="w-8 h-8 mx-auto mb-2 text-slate-400" />
-                    <p className="text-sm text-slate-400">Description de l'image</p>
+                    <p className="text-sm text-slate-400">Cliquer pour changer</p>
                   </div>
                 </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Couleur de fond</label>
+                <input 
+                  type="color" 
+                  value={config.backgroundColor} 
+                  onChange={(e) => updateConfig('backgroundColor', e.target.value)}
+                  className="w-full h-10 rounded cursor-pointer"
+                />
+              </div>
+            </>
+          )}
+
+          {activeTab === 'zone' && (
+            <>
+              <div>
+                <label className="block text-sm font-medium mb-2">Padding (espacement interne)</label>
+                <div className="flex items-center gap-2">
+                  <input 
+                    type="number" 
+                    value={config.padding} 
+                    onChange={(e) => updateConfig('padding', parseInt(e.target.value))}
+                    className="bg-slate-700 border border-slate-500 rounded px-3 py-1 text-white w-20" 
+                  />
+                  <span className="text-slate-300">px</span>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Bordure arrondie</label>
+                <div className="flex items-center gap-2">
+                  <input 
+                    type="number" 
+                    value={config.borderRadius} 
+                    onChange={(e) => updateConfig('borderRadius', parseInt(e.target.value))}
+                    className="bg-slate-700 border border-slate-500 rounded px-3 py-1 text-white w-20" 
+                  />
+                  <span className="text-slate-300">px</span>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Couleur d'arrière-plan</label>
+                <input 
+                  type="color" 
+                  value={config.backgroundColor} 
+                  onChange={(e) => updateConfig('backgroundColor', e.target.value)}
+                  className="w-full h-10 rounded cursor-pointer"
+                />
+              </div>
+            </>
+          )}
+
+          {activeTab === 'texts' && (
+            <>
+              <div>
+                <label className="block text-sm font-medium mb-2">Taille titre principal</label>
+                <select 
+                  value={config.titleSize} 
+                  onChange={(e) => updateConfig('titleSize', e.target.value)}
+                  className="bg-slate-700 border border-slate-500 rounded px-3 py-1 text-white w-full"
+                >
+                  <option value="text-lg md:text-xl lg:text-2xl">Petit</option>
+                  <option value="text-xl md:text-2xl lg:text-3xl">Moyen</option>
+                  <option value="text-2xl md:text-3xl lg:text-4xl">Grand</option>
+                  <option value="text-3xl md:text-4xl lg:text-5xl">Très grand</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Taille sous-titre</label>
+                <select 
+                  value={config.subtitleSize} 
+                  onChange={(e) => updateConfig('subtitleSize', e.target.value)}
+                  className="bg-slate-700 border border-slate-500 rounded px-3 py-1 text-white w-full"
+                >
+                  <option value="text-sm md:text-base lg:text-lg">Petit</option>
+                  <option value="text-base md:text-lg lg:text-xl">Moyen</option>
+                  <option value="text-lg md:text-xl lg:text-2xl">Grand</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Couleur titre</label>
+                <input 
+                  type="color" 
+                  value={config.titleColor} 
+                  onChange={(e) => updateConfig('titleColor', e.target.value)}
+                  className="w-full h-10 rounded cursor-pointer"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Couleur sous-titre</label>
+                <input 
+                  type="color" 
+                  value={config.subtitleColor} 
+                  onChange={(e) => updateConfig('subtitleColor', e.target.value)}
+                  className="w-full h-10 rounded cursor-pointer"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Couleur texte</label>
+                <input 
+                  type="color" 
+                  value={config.textColor} 
+                  onChange={(e) => updateConfig('textColor', e.target.value)}
+                  className="w-full h-10 rounded cursor-pointer"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Couleur lien</label>
+                <input 
+                  type="color" 
+                  value={config.linkColor} 
+                  onChange={(e) => updateConfig('linkColor', e.target.value)}
+                  className="w-full h-10 rounded cursor-pointer"
+                />
+              </div>
+            </>
+          )}
+
+          {activeTab === 'buttons' && (
+            <>
+              <div>
+                <label className="block text-sm font-medium mb-2">Couleur bouton principal</label>
+                <input 
+                  type="color" 
+                  value={config.buttonColor} 
+                  onChange={(e) => updateConfig('buttonColor', e.target.value)}
+                  className="w-full h-10 rounded cursor-pointer"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Couleur texte bouton</label>
+                <input 
+                  type="color" 
+                  value={config.buttonTextColor} 
+                  onChange={(e) => updateConfig('buttonTextColor', e.target.value)}
+                  className="w-full h-10 rounded cursor-pointer"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Arrondis des boutons</label>
+                <div className="flex items-center gap-2">
+                  <input 
+                    type="number" 
+                    value={config.borderRadius} 
+                    onChange={(e) => updateConfig('borderRadius', parseInt(e.target.value))}
+                    className="bg-slate-700 border border-slate-500 rounded px-3 py-1 text-white w-20" 
+                  />
+                  <span className="text-slate-300">px</span>
+                </div>
+              </div>
+            </>
+          )}
+
+          {activeTab === 'code' && (
+            <>
+              <div>
+                <label className="block text-sm font-medium mb-2">CSS personnalisé</label>
+                <textarea 
+                  placeholder="/* Ajoutez votre CSS ici */"
+                  className="bg-slate-700 border border-slate-500 rounded px-3 py-2 text-white w-full h-24 text-sm font-mono"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">JavaScript personnalisé</label>
+                <textarea 
+                  placeholder="// Ajoutez votre JS ici"
+                  className="bg-slate-700 border border-slate-500 rounded px-3 py-2 text-white w-full h-24 text-sm font-mono"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Tags de tracking</label>
+                <textarea 
+                  placeholder="<script>// Tags Google Analytics, Facebook Pixel, etc.</script>"
+                  className="bg-slate-700 border border-slate-500 rounded px-3 py-2 text-white w-full h-24 text-sm font-mono"
+                />
               </div>
             </>
           )}
@@ -133,11 +347,18 @@ export const ContestInterface = () => {
         {/* Preview Area */}
         <div className="flex-1 flex items-center justify-center p-4 bg-slate-800">
           {/* Contest iframe simulation with responsive preview */}
-          <div className={`bg-contest-bg rounded-lg shadow-2xl overflow-hidden transition-all duration-300 ${
-            previewMode === 'desktop' ? 'w-full max-w-4xl' :
-            previewMode === 'tablet' ? 'w-full max-w-2xl' :
-            'w-full max-w-sm'
-          }`}>
+          <div 
+            className={`shadow-2xl overflow-hidden transition-all duration-300 ${
+              previewMode === 'desktop' ? 'w-full max-w-4xl' :
+              previewMode === 'tablet' ? 'w-full max-w-2xl' :
+              'w-full max-w-sm'
+            }`}
+            style={{
+              backgroundColor: config.backgroundColor,
+              borderRadius: `${config.borderRadius}px`,
+              maxWidth: previewMode === 'desktop' ? `${config.width}px` : undefined
+            }}
+          >
         {/* Header with banner */}
         <div className="relative">
           {/* Social icons and rules button overlay */}
@@ -165,13 +386,13 @@ export const ContestInterface = () => {
             
             {/* Title overlays */}
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <div className="bg-contest-pink/90 px-6 py-2 rounded-md mb-2 backdrop-blur-sm">
-                <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-contest-text">
+              <div className="px-6 py-2 rounded-md mb-2 backdrop-blur-sm" style={{ backgroundColor: config.titleColor + '90' }}>
+                <h1 className={`font-bold text-white ${config.titleSize}`}>
                   GRAND JEU
                 </h1>
               </div>
-              <div className="bg-contest-beige/90 px-8 py-2 rounded-md backdrop-blur-sm">
-                <h2 className="text-lg md:text-xl lg:text-2xl font-semibold text-contest-text">
+              <div className="px-8 py-2 rounded-md backdrop-blur-sm" style={{ backgroundColor: config.subtitleColor + '90' }}>
+                <h2 className={`font-semibold text-white ${config.subtitleSize}`}>
                   LECTURES DE L'ÉTÉ
                 </h2>
               </div>
@@ -180,10 +401,13 @@ export const ContestInterface = () => {
         </div>
 
         {/* Content section */}
-        <div className="p-6 md:p-8 lg:p-12">
+        <div style={{ padding: `${config.padding}px` }}>
           {/* Description text */}
           <div className="prose prose-lg max-w-none mb-8">
-            <p className="text-contest-text leading-relaxed text-justify">
+            <p 
+              className={`leading-relaxed text-justify ${config.textSize}`}
+              style={{ color: config.textColor }}
+            >
               Valentine et son frère aîné, Antoine, ont 13 ans d'écart. Orphelins de mère, ils viennent de perdre leur père, César Mestre. Le jour des obsèques, une inconnue leur remet une lettre de leur père. La lettre n'explicite pas grand-chose, mais évoque une fracture, des réparations qui n'ont pas eu le temps d'être faites. Antoine s'en détourne vite et retourne à sa vie rangée avec sa femme et ses enfants. Mais Valentine ne reconnaît pas dans ces lignes l'enfance qu'elle a vécue et se donne pour mission de comprendre ce que leur père a voulu leur dire et va enquêter. À son récit s'enchâsse celui de Laure, factrice à Loisel, un petit village normand, et qui vient de faire la connaissance de César. Elle s'est réfugiée là quatre ans plus tôt, après une dépression, et laissant la garde de son fils à son ex-mari, fils avec lequel elle tente peu à peu de renouer un lien fort. Le destin des deux femmes va se croiser.
             </p>
           </div>
@@ -192,7 +416,8 @@ export const ContestInterface = () => {
           <div className="text-center mb-6">
             <a 
               href="https://editions.flammarion.com" 
-              className="text-contest-red font-bold hover:underline text-lg"
+              className="font-bold hover:underline text-lg"
+              style={{ color: config.linkColor }}
               target="_blank" 
               rel="noopener noreferrer"
             >
@@ -202,16 +427,26 @@ export const ContestInterface = () => {
 
           {/* Prize description */}
           <div className="text-center mb-8">
-            <p className="text-contest-text font-bold italic">
+            <p 
+              className="font-bold italic"
+              style={{ color: config.textColor }}
+            >
               Jouez et tentez de remporter l'un des 10 exemplaires de "Les notes invisibles" d'une valeur unitaire de 21 euros !
             </p>
           </div>
 
           {/* CTA Button */}
           <div className="text-center">
-            <Button variant="contest" size="xl" className="min-w-48">
+            <button 
+              className="px-8 py-4 font-bold text-lg min-w-48 transition-all duration-200 hover:scale-105"
+              style={{ 
+                backgroundColor: config.buttonColor,
+                color: config.buttonTextColor,
+                borderRadius: `${config.borderRadius}px`
+              }}
+            >
               PARTICIPER !
-            </Button>
+            </button>
           </div>
         </div>
           </div>
