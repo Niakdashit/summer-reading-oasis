@@ -129,15 +129,9 @@ export const WheelOfFortune: React.FC<WheelOfFortuneProps> = ({
         {/* Spin button */}
         <div className="absolute inset-0 flex items-center justify-center">
           <Button
-            onClick={() => {
-              if (mode === 2 && gameState === 'initial') {
-                setShowContactForm(true);
-              } else if (gameState === 'wheel' || gameState === 'initial') {
-                spinWheel();
-              }
-            }}
-            disabled={isSpinning}
-            className="w-16 h-16 rounded-full bg-contest-red hover:bg-contest-red/90 text-white shadow-lg"
+            onClick={spinWheel}
+            disabled={isSpinning || (mode === 2 && gameState === 'initial')}
+            className="w-16 h-16 rounded-full bg-contest-red hover:bg-contest-red/90 text-white shadow-lg disabled:opacity-50"
             size="icon"
           >
             <RotateCw className={`w-6 h-6 ${isSpinning ? 'animate-spin' : ''}`} />
@@ -179,15 +173,28 @@ export const WheelOfFortune: React.FC<WheelOfFortuneProps> = ({
               🎡 Roue de la Fortune
             </h1>
             <p className="text-xl text-contest-text/80 max-w-lg mx-auto animate-fade-in">
-              {gameState === 'initial' ? 'Cliquez sur la roue pour commencer !' : 
-               gameState === 'wheel' ? 'Cliquez sur le bouton central pour faire tourner la roue !' :
-               'Tournez la roue et découvrez votre cadeau !'}
+              {gameState === 'initial' ? 'Remplissez le formulaire pour pouvoir jouer !' : 
+               'Cliquez sur le bouton central pour faire tourner la roue !'}
             </p>
           </div>
 
           <div className="flex justify-center animate-scale-in">
             {renderWheel()}
           </div>
+
+          {/* Participate button for mode 2 */}
+          {gameState === 'initial' && (
+            <div className="text-center mt-8">
+              <Button
+                onClick={() => setShowContactForm(true)}
+                variant="contest"
+                size="xl"
+                className="px-8 py-4 text-xl font-bold animate-pulse hover:animate-none"
+              >
+                🎯 Participer
+              </Button>
+            </div>
+          )}
 
           {gameState === 'result' && (
             <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-2xl max-w-md mx-auto animate-fade-in mt-8 border-2 border-contest-red">
