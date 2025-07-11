@@ -46,6 +46,7 @@ export const ContestInterface = () => {
       fontSize: 16,
       color: '#000000',
       fontWeight: 'normal',
+      fontFamily: 'inter',
       isDragging: false
     };
     setTextElements(prev => [...prev, newElement]);
@@ -72,7 +73,14 @@ export const ContestInterface = () => {
     const element = textElements.find(el => el.id === elementId);
     if (!element) return;
 
-    const containerRect = e.currentTarget.closest('.preview-container').getBoundingClientRect();
+    // Limiter le déplacement à la zone bannière en mode 1
+    const bannerElement = config.mode === 1 ? 
+      e.currentTarget.closest('.preview-container').querySelector('.banner-zone') : 
+      e.currentTarget.closest('.preview-container');
+    
+    if (!bannerElement) return;
+
+    const containerRect = bannerElement.getBoundingClientRect();
     const startX = e.clientX - containerRect.left - element.x;
     const startY = e.clientY - containerRect.top - element.y;
 
@@ -295,14 +303,52 @@ export const ContestInterface = () => {
                     
                     <div>
                       <label className="block text-xs font-medium mb-1">Taille</label>
-                      <input
-                        type="number"
-                        min="8"
-                        max="72"
-                        value={textElements.find(el => el.id === selectedElement)?.fontSize || 16}
-                        onChange={(e) => updateTextElement(selectedElement, { fontSize: parseInt(e.target.value) })}
-                        className="bg-slate-700 border border-slate-500 rounded px-2 py-1 text-white w-16 text-sm"
-                      />
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => {
+                            const current = textElements.find(el => el.id === selectedElement);
+                            if (current && current.fontSize > 8) {
+                              updateTextElement(selectedElement, { fontSize: current.fontSize - 2 });
+                            }
+                          }}
+                          className="bg-slate-600 hover:bg-slate-500 text-white px-2 py-1 rounded text-xs"
+                        >
+                          -
+                        </button>
+                        <input
+                          type="number"
+                          min="8"
+                          max="72"
+                          value={textElements.find(el => el.id === selectedElement)?.fontSize || 16}
+                          onChange={(e) => updateTextElement(selectedElement, { fontSize: parseInt(e.target.value) })}
+                          className="bg-slate-700 border border-slate-500 rounded px-2 py-1 text-white w-16 text-sm"
+                        />
+                        <button
+                          onClick={() => {
+                            const current = textElements.find(el => el.id === selectedElement);
+                            if (current && current.fontSize < 72) {
+                              updateTextElement(selectedElement, { fontSize: current.fontSize + 2 });
+                            }
+                          }}
+                          className="bg-slate-600 hover:bg-slate-500 text-white px-2 py-1 rounded text-xs"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-xs font-medium mb-1">Police</label>
+                      <select
+                        value={textElements.find(el => el.id === selectedElement)?.fontFamily || 'inter'}
+                        onChange={(e) => updateTextElement(selectedElement, { fontFamily: e.target.value })}
+                        className="bg-slate-700 border border-slate-500 rounded px-2 py-1 text-white w-full text-sm"
+                      >
+                        <option value="inter">Inter (Sans-serif)</option>
+                        <option value="playfair">Playfair Display (Serif)</option>
+                        <option value="roboto">Roboto (Sans-serif)</option>
+                        <option value="montserrat">Montserrat (Sans-serif)</option>
+                      </select>
                     </div>
                     
                     <div>
@@ -468,7 +514,7 @@ export const ContestInterface = () => {
                 key={element.id}
                 className={`absolute cursor-move select-none ${
                   selectedElement === element.id ? 'ring-2 ring-orange-500' : ''
-                }`}
+                } font-${element.fontFamily}`}
                 style={{
                   left: `${element.x}px`,
                   top: `${element.y}px`,
@@ -486,7 +532,7 @@ export const ContestInterface = () => {
             {config.mode === 1 ? (
               <>
                 {/* Mode 1: Header with banner */}
-                <div className="relative">
+                <div className="relative banner-zone">
                   {/* Social icons and rules button overlay */}
                   <div className="absolute top-4 left-4 right-4 flex justify-between items-start z-10">
                     <div className="flex gap-2">
