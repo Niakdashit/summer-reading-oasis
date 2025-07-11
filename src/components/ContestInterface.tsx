@@ -765,8 +765,84 @@ export const ContestInterface = () => {
               </div>)}
             
             {config.mode === 1 ? <>
-                {/* Mode 1: Wheel of Fortune Game */}
-                <WheelOfFortune mode={config.displayMode as 1 | 2} />
+                {/* Mode 1: Banner + Text Zone with Wheel of Fortune logic */}
+                <div className="relative banner-zone">
+                  {/* Social icons and rules button overlay */}
+                  <div className="absolute top-4 left-4 right-4 flex justify-between items-start z-10">
+                    <div className="flex gap-2">
+                      <Button variant="social" size="icon">
+                        <Facebook className="w-4 h-4" />
+                      </Button>
+                      <Button variant="social" size="icon" className="bg-black hover:bg-gray-800">
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    <Button variant="rules">
+                      Règlement
+                    </Button>
+                  </div>
+
+                  {/* Main banner image */}
+                  <div className="relative h-64 md:h-80 lg:h-96 overflow-hidden">
+                    <img src={beachImage} alt="Personnes lisant sur la plage" className="w-full h-full object-cover" />
+                    
+                    {/* Title overlays */}
+                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                      <h1 className={`font-bold ${config.titleSize} drop-shadow-lg`} style={{
+                        color: config.titleColor
+                      }}>
+                        CONCOURS
+                      </h1>
+                      <h2 className={`font-bold ${config.subtitleSize} drop-shadow-lg`} style={{
+                        color: config.subtitleColor
+                      }}>
+                        FEMME ACTUELLE
+                      </h2>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Content section with game logic */}
+                <div style={{
+                  padding: `${config.padding}px`
+                }}>
+                  {/* Description text */}
+                  <div className="prose prose-lg max-w-none mb-8">
+                    {editingDescription ? <textarea value={config.descriptionText} onChange={e => updateConfig('descriptionText', e.target.value)} onBlur={() => setEditingDescription(false)} onKeyDown={e => {
+                      if (e.key === 'Escape') {
+                        setEditingDescription(false);
+                      }
+                    }} className={`w-full bg-transparent border border-blue-300 rounded p-2 leading-relaxed text-justify resize-none ${config.textSize}`} style={{
+                      color: config.textColor,
+                      minHeight: '120px'
+                    }} autoFocus /> : <p className={`leading-relaxed text-justify cursor-pointer hover:bg-gray-100 hover:bg-opacity-20 p-2 rounded transition-colors ${config.textSize}`} style={{
+                      color: config.textColor
+                    }} onDoubleClick={() => setEditingDescription(true)} title="Double-cliquez pour modifier">
+                        {config.descriptionText}
+                      </p>}
+                  </div>
+
+                  {/* Publisher link */}
+                  <div className="text-center mb-6">
+                    <a href="https://editions.flammarion.com" className="font-bold hover:underline text-lg" style={{
+                      color: config.linkColor
+                    }} target="_blank" rel="noopener noreferrer">
+                      editions.flammarion.com
+                    </a>
+                  </div>
+
+                  {/* Prize description */}
+                  <div className="text-center mb-8">
+                    <p className="font-bold italic" style={{
+                      color: config.textColor
+                    }}>
+                      Jouez et tentez de remporter l'un des 10 exemplaires de "Les notes invisibles" d'une valeur unitaire de 21 euros !
+                    </p>
+                  </div>
+
+                  {/* Wheel of Fortune Game integrated in banner mode */}
+                  <WheelOfFortune mode={config.displayMode as 1 | 2} />
+                </div>
               </> : <>
                 {/* Mode 2: Full background only */}
                 <div className="relative w-full h-full min-h-[400px] md:min-h-[500px] lg:min-h-[600px] flex flex-col items-center justify-center" style={{
