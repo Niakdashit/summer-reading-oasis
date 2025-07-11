@@ -9,6 +9,7 @@ export const ContestInterface = () => {
   
   // Configuration states
   const [config, setConfig] = useState({
+    mode: 1, // 1 = bannière + texte, 2 = fond seul
     width: 810,
     height: 1200,
     anchor: 'fixe',
@@ -71,6 +72,17 @@ export const ContestInterface = () => {
         <div className="p-4 bg-slate-600 space-y-4 max-h-96 overflow-y-auto">
           {activeTab === 'general' && (
             <>
+              <div>
+                <label className="block text-sm font-medium mb-2">Mode d'affichage</label>
+                <select 
+                  value={config.mode} 
+                  onChange={(e) => updateConfig('mode', parseInt(e.target.value))}
+                  className="bg-slate-700 border border-slate-500 rounded px-3 py-1 text-white w-full"
+                >
+                  <option value={1}>Mode 1 - Bannière + zone de texte</option>
+                  <option value={2}>Mode 2 - Fond seul (paysage)</option>
+                </select>
+              </div>
               <div>
                 <label className="block text-sm font-medium mb-2">Largeur</label>
                 <div className="flex items-center gap-2">
@@ -349,106 +361,155 @@ export const ContestInterface = () => {
           {/* Contest iframe simulation with responsive preview */}
           <div 
             className={`shadow-2xl overflow-hidden transition-all duration-300 ${
-              previewMode === 'desktop' ? 'w-full max-w-4xl' :
-              previewMode === 'tablet' ? 'w-full max-w-2xl' :
-              'w-full max-w-sm'
+              config.mode === 2 && previewMode === 'desktop' 
+                ? 'w-full max-w-6xl aspect-video' 
+                : previewMode === 'desktop' ? 'w-full max-w-4xl' :
+                  previewMode === 'tablet' ? 'w-full max-w-2xl' :
+                  'w-full max-w-sm'
             }`}
             style={{
               backgroundColor: config.backgroundColor,
               borderRadius: `${config.borderRadius}px`,
-              maxWidth: previewMode === 'desktop' ? `${config.width}px` : undefined
+              maxWidth: config.mode === 2 && previewMode === 'desktop' ? '1200px' : previewMode === 'desktop' ? `${config.width}px` : undefined,
+              height: config.mode === 2 && previewMode === 'desktop' ? 'auto' : undefined
             }}
           >
-        {/* Header with banner */}
-        <div className="relative">
-          {/* Social icons and rules button overlay */}
-          <div className="absolute top-4 left-4 right-4 flex justify-between items-start z-10">
-            <div className="flex gap-2">
-              <Button variant="social" size="icon">
-                <Facebook className="w-4 h-4" />
-              </Button>
-              <Button variant="social" size="icon" className="bg-black hover:bg-gray-800">
-                <X className="w-4 h-4" />
-              </Button>
-            </div>
-            <Button variant="rules">
-              Règlement
-            </Button>
-          </div>
+            {config.mode === 1 ? (
+              <>
+                {/* Mode 1: Header with banner */}
+                <div className="relative">
+                  {/* Social icons and rules button overlay */}
+                  <div className="absolute top-4 left-4 right-4 flex justify-between items-start z-10">
+                    <div className="flex gap-2">
+                      <Button variant="social" size="icon">
+                        <Facebook className="w-4 h-4" />
+                      </Button>
+                      <Button variant="social" size="icon" className="bg-black hover:bg-gray-800">
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    <Button variant="rules">
+                      Règlement
+                    </Button>
+                  </div>
 
-          {/* Main banner image */}
-          <div className="relative h-64 md:h-80 lg:h-96 overflow-hidden">
-            <img 
-              src={beachImage} 
-              alt="Personnes lisant sur la plage" 
-              className="w-full h-full object-cover"
-            />
-            
-            {/* Title overlays */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <div className="px-6 py-2 rounded-md mb-2 backdrop-blur-sm" style={{ backgroundColor: config.titleColor + '90' }}>
-                <h1 className={`font-bold text-white ${config.titleSize}`}>
-                  GRAND JEU
-                </h1>
-              </div>
-              <div className="px-8 py-2 rounded-md backdrop-blur-sm" style={{ backgroundColor: config.subtitleColor + '90' }}>
-                <h2 className={`font-semibold text-white ${config.subtitleSize}`}>
-                  LECTURES DE L'ÉTÉ
-                </h2>
-              </div>
-            </div>
-          </div>
-        </div>
+                  {/* Main banner image */}
+                  <div className="relative h-64 md:h-80 lg:h-96 overflow-hidden">
+                    <img 
+                      src={beachImage} 
+                      alt="Personnes lisant sur la plage" 
+                      className="w-full h-full object-cover"
+                    />
+                    
+                    {/* Title overlays */}
+                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                      <div className="px-6 py-2 rounded-md mb-2 backdrop-blur-sm" style={{ backgroundColor: config.titleColor + '90' }}>
+                        <h1 className={`font-bold text-white ${config.titleSize}`}>
+                          GRAND JEU
+                        </h1>
+                      </div>
+                      <div className="px-8 py-2 rounded-md backdrop-blur-sm" style={{ backgroundColor: config.subtitleColor + '90' }}>
+                        <h2 className={`font-semibold text-white ${config.subtitleSize}`}>
+                          LECTURES DE L'ÉTÉ
+                        </h2>
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
-        {/* Content section */}
-        <div style={{ padding: `${config.padding}px` }}>
-          {/* Description text */}
-          <div className="prose prose-lg max-w-none mb-8">
-            <p 
-              className={`leading-relaxed text-justify ${config.textSize}`}
-              style={{ color: config.textColor }}
-            >
-              Valentine et son frère aîné, Antoine, ont 13 ans d'écart. Orphelins de mère, ils viennent de perdre leur père, César Mestre. Le jour des obsèques, une inconnue leur remet une lettre de leur père. La lettre n'explicite pas grand-chose, mais évoque une fracture, des réparations qui n'ont pas eu le temps d'être faites. Antoine s'en détourne vite et retourne à sa vie rangée avec sa femme et ses enfants. Mais Valentine ne reconnaît pas dans ces lignes l'enfance qu'elle a vécue et se donne pour mission de comprendre ce que leur père a voulu leur dire et va enquêter. À son récit s'enchâsse celui de Laure, factrice à Loisel, un petit village normand, et qui vient de faire la connaissance de César. Elle s'est réfugiée là quatre ans plus tôt, après une dépression, et laissant la garde de son fils à son ex-mari, fils avec lequel elle tente peu à peu de renouer un lien fort. Le destin des deux femmes va se croiser.
-            </p>
-          </div>
+                {/* Content section */}
+                <div style={{ padding: `${config.padding}px` }}>
+                  {/* Description text */}
+                  <div className="prose prose-lg max-w-none mb-8">
+                    <p 
+                      className={`leading-relaxed text-justify ${config.textSize}`}
+                      style={{ color: config.textColor }}
+                    >
+                      Valentine et son frère aîné, Antoine, ont 13 ans d'écart. Orphelins de mère, ils viennent de perdre leur père, César Mestre. Le jour des obsèques, une inconnue leur remet une lettre de leur père. La lettre n'explicite pas grand-chose, mais évoque une fracture, des réparations qui n'ont pas eu le temps d'être faites. Antoine s'en détourne vite et retourne à sa vie rangée avec sa femme et ses enfants. Mais Valentine ne reconnaît pas dans ces lignes l'enfance qu'elle a vécue et se donne pour mission de comprendre ce que leur père a voulu leur dire et va enquêter. À son récit s'enchâsse celui de Laure, factrice à Loisel, un petit village normand, et qui vient de faire la connaissance de César. Elle s'est réfugiée là quatre ans plus tôt, après une dépression, et laissant la garde de son fils à son ex-mari, fils avec lequel elle tente peu à peu de renouer un lien fort. Le destin des deux femmes va se croiser.
+                    </p>
+                  </div>
 
-          {/* Publisher link */}
-          <div className="text-center mb-6">
-            <a 
-              href="https://editions.flammarion.com" 
-              className="font-bold hover:underline text-lg"
-              style={{ color: config.linkColor }}
-              target="_blank" 
-              rel="noopener noreferrer"
-            >
-              editions.flammarion.com
-            </a>
-          </div>
+                  {/* Publisher link */}
+                  <div className="text-center mb-6">
+                    <a 
+                      href="https://editions.flammarion.com" 
+                      className="font-bold hover:underline text-lg"
+                      style={{ color: config.linkColor }}
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                    >
+                      editions.flammarion.com
+                    </a>
+                  </div>
 
-          {/* Prize description */}
-          <div className="text-center mb-8">
-            <p 
-              className="font-bold italic"
-              style={{ color: config.textColor }}
-            >
-              Jouez et tentez de remporter l'un des 10 exemplaires de "Les notes invisibles" d'une valeur unitaire de 21 euros !
-            </p>
-          </div>
+                  {/* Prize description */}
+                  <div className="text-center mb-8">
+                    <p 
+                      className="font-bold italic"
+                      style={{ color: config.textColor }}
+                    >
+                      Jouez et tentez de remporter l'un des 10 exemplaires de "Les notes invisibles" d'une valeur unitaire de 21 euros !
+                    </p>
+                  </div>
 
-          {/* CTA Button */}
-          <div className="text-center">
-            <button 
-              className="px-8 py-4 font-bold text-lg min-w-48 transition-all duration-200 hover:scale-105"
-              style={{ 
-                backgroundColor: config.buttonColor,
-                color: config.buttonTextColor,
-                borderRadius: `${config.borderRadius}px`
-              }}
-            >
-              PARTICIPER !
-            </button>
-          </div>
-        </div>
+                  {/* CTA Button */}
+                  <div className="text-center">
+                    <button 
+                      className="px-8 py-4 font-bold text-lg min-w-48 transition-all duration-200 hover:scale-105"
+                      style={{ 
+                        backgroundColor: config.buttonColor,
+                        color: config.buttonTextColor,
+                        borderRadius: `${config.borderRadius}px`
+                      }}
+                    >
+                      PARTICIPER !
+                    </button>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                {/* Mode 2: Full background only */}
+                <div 
+                  className="relative w-full h-full min-h-[400px] md:min-h-[500px] lg:min-h-[600px] flex flex-col items-center justify-center"
+                  style={{
+                    backgroundImage: `url(${beachImage})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat'
+                  }}
+                >
+                  {/* Social icons and rules button overlay */}
+                  <div className="absolute top-4 left-4 right-4 flex justify-between items-start z-10">
+                    <div className="flex gap-2">
+                      <Button variant="social" size="icon">
+                        <Facebook className="w-4 h-4" />
+                      </Button>
+                      <Button variant="social" size="icon" className="bg-black hover:bg-gray-800">
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    <Button variant="rules">
+                      Règlement
+                    </Button>
+                  </div>
+
+                  {/* Title overlays centered */}
+                  <div className="flex flex-col items-center justify-center">
+                    <div className="px-6 py-2 rounded-md mb-2 backdrop-blur-sm" style={{ backgroundColor: config.titleColor + '90' }}>
+                      <h1 className={`font-bold text-white ${config.titleSize}`}>
+                        GRAND JEU
+                      </h1>
+                    </div>
+                    <div className="px-8 py-2 rounded-md backdrop-blur-sm" style={{ backgroundColor: config.subtitleColor + '90' }}>
+                      <h2 className={`font-semibold text-white ${config.subtitleSize}`}>
+                        LECTURES DE L'ÉTÉ
+                      </h2>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
