@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Facebook, X, Settings, Type, MousePointer, Code, Image, Monitor, Tablet, Smartphone, RotateCcw, Play } from 'lucide-react';
+import { Facebook, X, Settings, Type, MousePointer, Code, Image, Monitor, Tablet, Smartphone, RotateCcw } from 'lucide-react';
 import beachImage from '@/assets/beach-reading-banner.jpg';
 export const ContestInterface = () => {
   const [activeTab, setActiveTab] = useState('general');
@@ -18,10 +18,6 @@ export const ContestInterface = () => {
   // Image elements state
   const [imageElements, setImageElements] = useState([]);
   const [selectedImageElement, setSelectedImageElement] = useState(null);
-
-  // Fortune wheel state
-  const [isSpinning, setIsSpinning] = useState(false);
-  const [wheelRotation, setWheelRotation] = useState(0);
 
   // Configuration states
   const [config, setConfig] = useState({
@@ -354,19 +350,6 @@ export const ContestInterface = () => {
     // For now, we'll just store it in config - you could extend this
     updateConfig('descriptionText', newText);
   };
-
-  // Fortune wheel functions
-  const spinWheel = () => {
-    if (isSpinning) return;
-    
-    setIsSpinning(true);
-    const randomRotation = Math.random() * 360 + 1440; // At least 4 full rotations
-    setWheelRotation(prev => prev + randomRotation);
-    
-    setTimeout(() => {
-      setIsSpinning(false);
-    }, 3000);
-  };
   const configTabs = [{
     id: 'general',
     label: 'Général',
@@ -644,10 +627,20 @@ export const ContestInterface = () => {
             </>}
 
           {activeTab === 'buttons' && <>
-              <div className="space-y-4">
-                <p className="text-sm text-muted-foreground">
-                  Le bouton "Participer" et la roue de la fortune sont maintenant visibles directement sur l'aperçu.
-                </p>
+              <div>
+                <label className="block text-sm font-medium mb-2">Couleur bouton principal</label>
+                <input type="color" value={config.buttonColor} onChange={e => updateConfig('buttonColor', e.target.value)} className="w-full h-10 rounded cursor-pointer" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Couleur texte bouton</label>
+                <input type="color" value={config.buttonTextColor} onChange={e => updateConfig('buttonTextColor', e.target.value)} className="w-full h-10 rounded cursor-pointer" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Arrondis des boutons</label>
+                <div className="flex items-center gap-2">
+                  <input type="number" value={config.borderRadius} onChange={e => updateConfig('borderRadius', parseInt(e.target.value))} className="bg-slate-700 border border-slate-500 rounded px-3 py-1 text-white w-20" />
+                  <span className="text-slate-300">px</span>
+                </div>
               </div>
             </>}
 
@@ -831,101 +824,13 @@ export const ContestInterface = () => {
                   </div>
 
                   {/* CTA Button */}
-                  <div className="text-center mb-8">
-                    <button 
-                      className="px-8 py-4 font-bold text-lg min-w-48 transition-all duration-200 hover:scale-105 shadow-lg hover:shadow-xl" 
-                      style={{
-                        backgroundColor: config.buttonColor,
-                        color: config.buttonTextColor,
-                        borderRadius: `${config.borderRadius}px`
-                      }}
-                      onClick={spinWheel}
-                    >
-                      PARTICIPER !
-                    </button>
-                  </div>
-
-                  {/* Fortune Wheel */}
                   <div className="text-center">
-                    <div className="relative w-64 h-64 mx-auto mb-4">
-                      <svg 
-                        viewBox="0 0 200 200" 
-                        className={`w-full h-full drop-shadow-2xl transition-transform duration-3000 ease-out ${isSpinning ? 'animate-spin' : ''}`}
-                        style={{
-                          transform: `rotate(${wheelRotation}deg)`,
-                          transformOrigin: 'center'
-                        }}
-                      >
-                        {/* Wheel Segments */}
-                        {Array.from({ length: 8 }, (_, i) => {
-                          const startAngle = (i * 45) - 90;
-                          const endAngle = ((i + 1) * 45) - 90;
-                          const startRad = (startAngle * Math.PI) / 180;
-                          const endRad = (endAngle * Math.PI) / 180;
-                          const x1 = 100 + 85 * Math.cos(startRad);
-                          const y1 = 100 + 85 * Math.sin(startRad);
-                          const x2 = 100 + 85 * Math.cos(endRad);
-                          const y2 = 100 + 85 * Math.sin(endRad);
-                          
-                          // Alternating elegant colors
-                          const colors = [
-                            '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4',
-                            '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F'
-                          ];
-                          
-                          return (
-                            <path
-                              key={i}
-                              d={`M 100 100 L ${x1} ${y1} A 85 85 0 0 1 ${x2} ${y2} Z`}
-                              fill={colors[i]}
-                              stroke="white"
-                              strokeWidth="3"
-                              className="hover:brightness-110 transition-all duration-200"
-                              style={{
-                                filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.2))'
-                              }}
-                            />
-                          );
-                        })}
-                        
-                        {/* Center circle */}
-                        <circle 
-                          cx="100" 
-                          cy="100" 
-                          r="18" 
-                          fill="white" 
-                          stroke="#333" 
-                          strokeWidth="3"
-                          style={{
-                            filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))'
-                          }}
-                        />
-                      </svg>
-                      
-                      {/* Static pointer */}
-                      <div className="absolute top-2 left-1/2 transform -translate-x-1/2">
-                        <div 
-                          className="w-0 h-0"
-                          style={{
-                            borderLeft: '12px solid transparent',
-                            borderRight: '12px solid transparent',
-                            borderBottom: '20px solid #333',
-                            filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))'
-                          }}
-                        />
-                      </div>
-                    </div>
-                    
-                    <button 
-                      className={`px-6 py-3 font-semibold rounded-full text-white shadow-lg transition-all duration-300 ${
-                        isSpinning 
-                          ? 'bg-gray-500 cursor-not-allowed' 
-                          : 'bg-gradient-to-r from-purple-500 to-pink-500 hover:shadow-xl hover:scale-105'
-                      }`}
-                      onClick={spinWheel}
-                      disabled={isSpinning}
-                    >
-                      {isSpinning ? 'Roue en cours...' : 'Faire tourner la roue'}
+                    <button className="px-8 py-4 font-bold text-lg min-w-48 transition-all duration-200 hover:scale-105" style={{
+                  backgroundColor: config.buttonColor,
+                  color: config.buttonTextColor,
+                  borderRadius: `${config.borderRadius}px`
+                }}>
+                      PARTICIPER !
                     </button>
                   </div>
                 </div>
