@@ -19,6 +19,10 @@ export const ContestInterface = () => {
   const [imageElements, setImageElements] = useState([]);
   const [selectedImageElement, setSelectedImageElement] = useState(null);
 
+  // Fortune wheel state
+  const [isSpinning, setIsSpinning] = useState(false);
+  const [wheelRotation, setWheelRotation] = useState(0);
+
   // Configuration states
   const [config, setConfig] = useState({
     mode: 1,
@@ -350,6 +354,19 @@ export const ContestInterface = () => {
     // For now, we'll just store it in config - you could extend this
     updateConfig('descriptionText', newText);
   };
+
+  // Fortune wheel functions
+  const spinWheel = () => {
+    if (isSpinning) return;
+    
+    setIsSpinning(true);
+    const randomRotation = Math.random() * 360 + 1440; // At least 4 full rotations
+    setWheelRotation(prev => prev + randomRotation);
+    
+    setTimeout(() => {
+      setIsSpinning(false);
+    }, 3000);
+  };
   const configTabs = [{
     id: 'general',
     label: 'Général',
@@ -628,105 +645,9 @@ export const ContestInterface = () => {
 
           {activeTab === 'buttons' && <>
               <div className="space-y-4">
-                <h3 className="text-sm font-medium">Boutons et Jeux</h3>
-                
-                {/* Participate Button */}
-                <div className="bg-slate-700 rounded-lg p-4 space-y-3">
-                  <h4 className="text-sm font-medium text-orange-400">Bouton Participer</h4>
-                  <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground flex items-center justify-center gap-2">
-                    <Play className="w-4 h-4" />
-                    PARTICIPER !
-                  </Button>
-                  
-                  <div>
-                    <label className="block text-xs font-medium mb-1">Couleur bouton</label>
-                    <input type="color" value={config.buttonColor} onChange={e => updateConfig('buttonColor', e.target.value)} className="w-full h-8 rounded cursor-pointer" />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium mb-1">Couleur texte</label>
-                    <input type="color" value={config.buttonTextColor} onChange={e => updateConfig('buttonTextColor', e.target.value)} className="w-full h-8 rounded cursor-pointer" />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium mb-1">Arrondis</label>
-                    <div className="flex items-center gap-2">
-                      <input type="number" value={config.borderRadius} onChange={e => updateConfig('borderRadius', parseInt(e.target.value))} className="bg-slate-700 border border-slate-500 rounded px-2 py-1 text-white w-16 text-sm" />
-                      <span className="text-slate-300 text-xs">px</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Fortune Wheel */}
-                <div className="bg-slate-700 rounded-lg p-4 space-y-3">
-                  <h4 className="text-sm font-medium text-orange-400">Roue de la Fortune</h4>
-                  
-                  {/* Fortune Wheel Display */}
-                  <div className="relative w-32 h-32 mx-auto">
-                    <svg viewBox="0 0 200 200" className="w-full h-full transform hover:scale-105 transition-all duration-300 drop-shadow-2xl">
-                      {/* Wheel Segments */}
-                      {Array.from({ length: 8 }, (_, i) => {
-                        const startAngle = (i * 45) - 90;
-                        const endAngle = ((i + 1) * 45) - 90;
-                        const startRad = (startAngle * Math.PI) / 180;
-                        const endRad = (endAngle * Math.PI) / 180;
-                        const x1 = 100 + 80 * Math.cos(startRad);
-                        const y1 = 100 + 80 * Math.sin(startRad);
-                        const x2 = 100 + 80 * Math.cos(endRad);
-                        const y2 = 100 + 80 * Math.sin(endRad);
-                        
-                        // Alternating elegant colors
-                        const colors = [
-                          'hsl(var(--primary))',
-                          'hsl(var(--accent))',
-                          'hsl(220 14% 35%)',
-                          'hsl(217 91% 60%)',
-                          'hsl(262 83% 58%)',
-                          'hsl(346 87% 65%)',
-                          'hsl(142 71% 45%)',
-                          'hsl(35 91% 62%)'
-                        ];
-                        
-                        return (
-                          <path
-                            key={i}
-                            d={`M 100 100 L ${x1} ${y1} A 80 80 0 0 1 ${x2} ${y2} Z`}
-                            fill={colors[i]}
-                            stroke="white"
-                            strokeWidth="2"
-                            className="hover:brightness-110 transition-all duration-200"
-                          />
-                        );
-                      })}
-                      
-                      {/* Center circle */}
-                      <circle 
-                        cx="100" 
-                        cy="100" 
-                        r="15" 
-                        fill="white" 
-                        stroke="hsl(var(--primary))" 
-                        strokeWidth="3"
-                        className="drop-shadow-sm"
-                      />
-                      
-                      {/* Pointer */}
-                      <polygon 
-                        points="100,20 110,35 90,35" 
-                        fill="white" 
-                        stroke="hsl(var(--primary))" 
-                        strokeWidth="2"
-                        className="drop-shadow-md"
-                      />
-                    </svg>
-                  </div>
-                  
-                  <Button className="w-full bg-gradient-to-r from-primary to-accent text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]">
-                    Faire tourner la roue
-                  </Button>
-                  
-                  <div className="text-xs text-slate-300 text-center">
-                    Cliquez pour lancer la roue !
-                  </div>
-                </div>
+                <p className="text-sm text-muted-foreground">
+                  Le bouton "Participer" et la roue de la fortune sont maintenant visibles directement sur l'aperçu.
+                </p>
               </div>
             </>}
 
@@ -910,13 +831,101 @@ export const ContestInterface = () => {
                   </div>
 
                   {/* CTA Button */}
-                  <div className="text-center">
-                    <button className="px-8 py-4 font-bold text-lg min-w-48 transition-all duration-200 hover:scale-105" style={{
-                  backgroundColor: config.buttonColor,
-                  color: config.buttonTextColor,
-                  borderRadius: `${config.borderRadius}px`
-                }}>
+                  <div className="text-center mb-8">
+                    <button 
+                      className="px-8 py-4 font-bold text-lg min-w-48 transition-all duration-200 hover:scale-105 shadow-lg hover:shadow-xl" 
+                      style={{
+                        backgroundColor: config.buttonColor,
+                        color: config.buttonTextColor,
+                        borderRadius: `${config.borderRadius}px`
+                      }}
+                      onClick={spinWheel}
+                    >
                       PARTICIPER !
+                    </button>
+                  </div>
+
+                  {/* Fortune Wheel */}
+                  <div className="text-center">
+                    <div className="relative w-64 h-64 mx-auto mb-4">
+                      <svg 
+                        viewBox="0 0 200 200" 
+                        className={`w-full h-full drop-shadow-2xl transition-transform duration-3000 ease-out ${isSpinning ? 'animate-spin' : ''}`}
+                        style={{
+                          transform: `rotate(${wheelRotation}deg)`,
+                          transformOrigin: 'center'
+                        }}
+                      >
+                        {/* Wheel Segments */}
+                        {Array.from({ length: 8 }, (_, i) => {
+                          const startAngle = (i * 45) - 90;
+                          const endAngle = ((i + 1) * 45) - 90;
+                          const startRad = (startAngle * Math.PI) / 180;
+                          const endRad = (endAngle * Math.PI) / 180;
+                          const x1 = 100 + 85 * Math.cos(startRad);
+                          const y1 = 100 + 85 * Math.sin(startRad);
+                          const x2 = 100 + 85 * Math.cos(endRad);
+                          const y2 = 100 + 85 * Math.sin(endRad);
+                          
+                          // Alternating elegant colors
+                          const colors = [
+                            '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4',
+                            '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F'
+                          ];
+                          
+                          return (
+                            <path
+                              key={i}
+                              d={`M 100 100 L ${x1} ${y1} A 85 85 0 0 1 ${x2} ${y2} Z`}
+                              fill={colors[i]}
+                              stroke="white"
+                              strokeWidth="3"
+                              className="hover:brightness-110 transition-all duration-200"
+                              style={{
+                                filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.2))'
+                              }}
+                            />
+                          );
+                        })}
+                        
+                        {/* Center circle */}
+                        <circle 
+                          cx="100" 
+                          cy="100" 
+                          r="18" 
+                          fill="white" 
+                          stroke="#333" 
+                          strokeWidth="3"
+                          style={{
+                            filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))'
+                          }}
+                        />
+                      </svg>
+                      
+                      {/* Static pointer */}
+                      <div className="absolute top-2 left-1/2 transform -translate-x-1/2">
+                        <div 
+                          className="w-0 h-0"
+                          style={{
+                            borderLeft: '12px solid transparent',
+                            borderRight: '12px solid transparent',
+                            borderBottom: '20px solid #333',
+                            filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))'
+                          }}
+                        />
+                      </div>
+                    </div>
+                    
+                    <button 
+                      className={`px-6 py-3 font-semibold rounded-full text-white shadow-lg transition-all duration-300 ${
+                        isSpinning 
+                          ? 'bg-gray-500 cursor-not-allowed' 
+                          : 'bg-gradient-to-r from-purple-500 to-pink-500 hover:shadow-xl hover:scale-105'
+                      }`}
+                      onClick={spinWheel}
+                      disabled={isSpinning}
+                    >
+                      {isSpinning ? 'Roue en cours...' : 'Faire tourner la roue'}
                     </button>
                   </div>
                 </div>
