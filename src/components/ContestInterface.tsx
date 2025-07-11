@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Facebook, X, Settings, Type, MousePointer, Code, Image, Monitor, Tablet, Smartphone, RotateCcw } from 'lucide-react';
+import { Facebook, X, Settings, Type, MousePointer, Code, Image, Monitor, Tablet, Smartphone, RotateCcw, Play } from 'lucide-react';
 import beachImage from '@/assets/beach-reading-banner.jpg';
 export const ContestInterface = () => {
   const [activeTab, setActiveTab] = useState('general');
@@ -627,19 +627,105 @@ export const ContestInterface = () => {
             </>}
 
           {activeTab === 'buttons' && <>
-              <div>
-                <label className="block text-sm font-medium mb-2">Couleur bouton principal</label>
-                <input type="color" value={config.buttonColor} onChange={e => updateConfig('buttonColor', e.target.value)} className="w-full h-10 rounded cursor-pointer" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">Couleur texte bouton</label>
-                <input type="color" value={config.buttonTextColor} onChange={e => updateConfig('buttonTextColor', e.target.value)} className="w-full h-10 rounded cursor-pointer" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">Arrondis des boutons</label>
-                <div className="flex items-center gap-2">
-                  <input type="number" value={config.borderRadius} onChange={e => updateConfig('borderRadius', parseInt(e.target.value))} className="bg-slate-700 border border-slate-500 rounded px-3 py-1 text-white w-20" />
-                  <span className="text-slate-300">px</span>
+              <div className="space-y-4">
+                <h3 className="text-sm font-medium">Boutons et Jeux</h3>
+                
+                {/* Participate Button */}
+                <div className="bg-slate-700 rounded-lg p-4 space-y-3">
+                  <h4 className="text-sm font-medium text-orange-400">Bouton Participer</h4>
+                  <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground flex items-center justify-center gap-2">
+                    <Play className="w-4 h-4" />
+                    PARTICIPER !
+                  </Button>
+                  
+                  <div>
+                    <label className="block text-xs font-medium mb-1">Couleur bouton</label>
+                    <input type="color" value={config.buttonColor} onChange={e => updateConfig('buttonColor', e.target.value)} className="w-full h-8 rounded cursor-pointer" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium mb-1">Couleur texte</label>
+                    <input type="color" value={config.buttonTextColor} onChange={e => updateConfig('buttonTextColor', e.target.value)} className="w-full h-8 rounded cursor-pointer" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium mb-1">Arrondis</label>
+                    <div className="flex items-center gap-2">
+                      <input type="number" value={config.borderRadius} onChange={e => updateConfig('borderRadius', parseInt(e.target.value))} className="bg-slate-700 border border-slate-500 rounded px-2 py-1 text-white w-16 text-sm" />
+                      <span className="text-slate-300 text-xs">px</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Fortune Wheel */}
+                <div className="bg-slate-700 rounded-lg p-4 space-y-3">
+                  <h4 className="text-sm font-medium text-orange-400">Roue de la Fortune</h4>
+                  
+                  {/* Fortune Wheel Display */}
+                  <div className="relative w-32 h-32 mx-auto">
+                    <svg viewBox="0 0 200 200" className="w-full h-full transform hover:scale-105 transition-all duration-300 drop-shadow-2xl">
+                      {/* Wheel Segments */}
+                      {Array.from({ length: 8 }, (_, i) => {
+                        const startAngle = (i * 45) - 90;
+                        const endAngle = ((i + 1) * 45) - 90;
+                        const startRad = (startAngle * Math.PI) / 180;
+                        const endRad = (endAngle * Math.PI) / 180;
+                        const x1 = 100 + 80 * Math.cos(startRad);
+                        const y1 = 100 + 80 * Math.sin(startRad);
+                        const x2 = 100 + 80 * Math.cos(endRad);
+                        const y2 = 100 + 80 * Math.sin(endRad);
+                        
+                        // Alternating elegant colors
+                        const colors = [
+                          'hsl(var(--primary))',
+                          'hsl(var(--accent))',
+                          'hsl(220 14% 35%)',
+                          'hsl(217 91% 60%)',
+                          'hsl(262 83% 58%)',
+                          'hsl(346 87% 65%)',
+                          'hsl(142 71% 45%)',
+                          'hsl(35 91% 62%)'
+                        ];
+                        
+                        return (
+                          <path
+                            key={i}
+                            d={`M 100 100 L ${x1} ${y1} A 80 80 0 0 1 ${x2} ${y2} Z`}
+                            fill={colors[i]}
+                            stroke="white"
+                            strokeWidth="2"
+                            className="hover:brightness-110 transition-all duration-200"
+                          />
+                        );
+                      })}
+                      
+                      {/* Center circle */}
+                      <circle 
+                        cx="100" 
+                        cy="100" 
+                        r="15" 
+                        fill="white" 
+                        stroke="hsl(var(--primary))" 
+                        strokeWidth="3"
+                        className="drop-shadow-sm"
+                      />
+                      
+                      {/* Pointer */}
+                      <polygon 
+                        points="100,20 110,35 90,35" 
+                        fill="white" 
+                        stroke="hsl(var(--primary))" 
+                        strokeWidth="2"
+                        className="drop-shadow-md"
+                      />
+                    </svg>
+                  </div>
+                  
+                  <Button className="w-full bg-gradient-to-r from-primary to-accent text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]">
+                    Faire tourner la roue
+                  </Button>
+                  
+                  <div className="text-xs text-slate-300 text-center">
+                    Cliquez pour lancer la roue !
+                  </div>
                 </div>
               </div>
             </>}
