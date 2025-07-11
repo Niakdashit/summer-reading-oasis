@@ -7,6 +7,10 @@ export const ContestInterface = () => {
   const [activeTab, setActiveTab] = useState('general');
   const [previewMode, setPreviewMode] = useState('desktop');
   
+  // Text elements state
+  const [textElements, setTextElements] = useState([]);
+  const [selectedElement, setSelectedElement] = useState(null);
+  
   // Configuration states
   const [config, setConfig] = useState({
     mode: 1, // 1 = bannière + texte, 2 = fond seul
@@ -30,6 +34,65 @@ export const ContestInterface = () => {
 
   const updateConfig = (key: string, value: any) => {
     setConfig(prev => ({ ...prev, [key]: value }));
+  };
+
+  // Text management functions
+  const addTextElement = () => {
+    const newElement = {
+      id: Date.now(),
+      text: 'Nouveau texte',
+      x: 50,
+      y: 50,
+      fontSize: 16,
+      color: '#000000',
+      fontWeight: 'normal',
+      isDragging: false
+    };
+    setTextElements(prev => [...prev, newElement]);
+    setSelectedElement(newElement.id);
+  };
+
+  const updateTextElement = (id, updates) => {
+    setTextElements(prev => prev.map(el => 
+      el.id === id ? { ...el, ...updates } : el
+    ));
+  };
+
+  const deleteTextElement = (id) => {
+    setTextElements(prev => prev.filter(el => el.id !== id));
+    if (selectedElement === id) {
+      setSelectedElement(null);
+    }
+  };
+
+  const handleMouseDown = (e, elementId) => {
+    e.preventDefault();
+    setSelectedElement(elementId);
+    
+    const element = textElements.find(el => el.id === elementId);
+    if (!element) return;
+
+    const containerRect = e.currentTarget.closest('.preview-container').getBoundingClientRect();
+    const startX = e.clientX - containerRect.left - element.x;
+    const startY = e.clientY - containerRect.top - element.y;
+
+    const handleMouseMove = (e) => {
+      const newX = e.clientX - containerRect.left - startX;
+      const newY = e.clientY - containerRect.top - startY;
+      
+      updateTextElement(elementId, { 
+        x: Math.max(0, Math.min(newX, containerRect.width - 100)), 
+        y: Math.max(0, Math.min(newY, containerRect.height - 30))
+      });
+    };
+
+    const handleMouseUp = () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
   };
 
   const configTabs = [
@@ -180,66 +243,91 @@ export const ContestInterface = () => {
 
           {activeTab === 'texts' && (
             <>
-              <div>
-                <label className="block text-sm font-medium mb-2">Taille titre principal</label>
-                <select 
-                  value={config.titleSize} 
-                  onChange={(e) => updateConfig('titleSize', e.target.value)}
-                  className="bg-slate-700 border border-slate-500 rounded px-3 py-1 text-white w-full"
-                >
-                  <option value="text-lg md:text-xl lg:text-2xl">Petit</option>
-                  <option value="text-xl md:text-2xl lg:text-3xl">Moyen</option>
-                  <option value="text-2xl md:text-3xl lg:text-4xl">Grand</option>
-                  <option value="text-3xl md:text-4xl lg:text-5xl">Très grand</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">Taille sous-titre</label>
-                <select 
-                  value={config.subtitleSize} 
-                  onChange={(e) => updateConfig('subtitleSize', e.target.value)}
-                  className="bg-slate-700 border border-slate-500 rounded px-3 py-1 text-white w-full"
-                >
-                  <option value="text-sm md:text-base lg:text-lg">Petit</option>
-                  <option value="text-base md:text-lg lg:text-xl">Moyen</option>
-                  <option value="text-lg md:text-xl lg:text-2xl">Grand</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">Couleur titre</label>
-                <input 
-                  type="color" 
-                  value={config.titleColor} 
-                  onChange={(e) => updateConfig('titleColor', e.target.value)}
-                  className="w-full h-10 rounded cursor-pointer"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">Couleur sous-titre</label>
-                <input 
-                  type="color" 
-                  value={config.subtitleColor} 
-                  onChange={(e) => updateConfig('subtitleColor', e.target.value)}
-                  className="w-full h-10 rounded cursor-pointer"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">Couleur texte</label>
-                <input 
-                  type="color" 
-                  value={config.textColor} 
-                  onChange={(e) => updateConfig('textColor', e.target.value)}
-                  className="w-full h-10 rounded cursor-pointer"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">Couleur lien</label>
-                <input 
-                  type="color" 
-                  value={config.linkColor} 
-                  onChange={(e) => updateConfig('linkColor', e.target.value)}
-                  className="w-full h-10 rounded cursor-pointer"
-                />
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-sm font-medium">Éléments de texte</h3>
+                  <Button 
+                    onClick={addTextElement}
+                    className="bg-green-600 hover:bg-green-500 text-white text-xs px-2 py-1 h-auto"
+                  >
+                    + Ajouter
+                  </Button>
+                </div>
+                
+                <div className="space-y-2 max-h-40 overflow-y-auto">
+                  {textElements.map((element) => (
+                    <div 
+                      key={element.id} 
+                      className={`p-2 bg-slate-700 rounded border cursor-pointer ${
+                        selectedElement === element.id ? 'border-orange-500' : 'border-slate-600'
+                      }`}
+                      onClick={() => setSelectedElement(element.id)}
+                    >
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs truncate">{element.text}</span>
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deleteTextElement(element.id);
+                          }}
+                          className="text-red-400 hover:text-red-300 text-xs"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {selectedElement && (
+                  <div className="space-y-3 border-t border-slate-500 pt-3">
+                    <h4 className="text-sm font-medium">Modifier l'élément sélectionné</h4>
+                    
+                    <div>
+                      <label className="block text-xs font-medium mb-1">Texte</label>
+                      <input
+                        type="text"
+                        value={textElements.find(el => el.id === selectedElement)?.text || ''}
+                        onChange={(e) => updateTextElement(selectedElement, { text: e.target.value })}
+                        className="bg-slate-700 border border-slate-500 rounded px-2 py-1 text-white w-full text-sm"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-xs font-medium mb-1">Taille</label>
+                      <input
+                        type="number"
+                        min="8"
+                        max="72"
+                        value={textElements.find(el => el.id === selectedElement)?.fontSize || 16}
+                        onChange={(e) => updateTextElement(selectedElement, { fontSize: parseInt(e.target.value) })}
+                        className="bg-slate-700 border border-slate-500 rounded px-2 py-1 text-white w-16 text-sm"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-xs font-medium mb-1">Couleur</label>
+                      <input
+                        type="color"
+                        value={textElements.find(el => el.id === selectedElement)?.color || '#000000'}
+                        onChange={(e) => updateTextElement(selectedElement, { color: e.target.value })}
+                        className="w-full h-8 rounded cursor-pointer"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-xs font-medium mb-1">Style</label>
+                      <select
+                        value={textElements.find(el => el.id === selectedElement)?.fontWeight || 'normal'}
+                        onChange={(e) => updateTextElement(selectedElement, { fontWeight: e.target.value })}
+                        className="bg-slate-700 border border-slate-500 rounded px-2 py-1 text-white w-full text-sm"
+                      >
+                        <option value="normal">Normal</option>
+                        <option value="bold">Gras</option>
+                      </select>
+                    </div>
+                  </div>
+                )}
               </div>
             </>
           )}
@@ -360,7 +448,7 @@ export const ContestInterface = () => {
         <div className="flex-1 flex items-center justify-center p-4 bg-slate-800">
           {/* Contest iframe simulation with responsive preview */}
           <div 
-            className={`shadow-2xl overflow-hidden transition-all duration-300 ${
+            className={`shadow-2xl overflow-hidden transition-all duration-300 preview-container relative ${
               config.mode === 2 && previewMode === 'desktop' 
                 ? 'w-full max-w-6xl aspect-video' 
                 : previewMode === 'desktop' ? 'w-full max-w-4xl' :
@@ -374,6 +462,27 @@ export const ContestInterface = () => {
               height: config.mode === 2 && previewMode === 'desktop' ? 'auto' : undefined
             }}
           >
+            {/* Custom text elements overlay */}
+            {textElements.map((element) => (
+              <div
+                key={element.id}
+                className={`absolute cursor-move select-none ${
+                  selectedElement === element.id ? 'ring-2 ring-orange-500' : ''
+                }`}
+                style={{
+                  left: `${element.x}px`,
+                  top: `${element.y}px`,
+                  fontSize: `${element.fontSize}px`,
+                  color: element.color,
+                  fontWeight: element.fontWeight,
+                  zIndex: 50
+                }}
+                onMouseDown={(e) => handleMouseDown(e, element.id)}
+              >
+                {element.text}
+              </div>
+            ))}
+            
             {config.mode === 1 ? (
               <>
                 {/* Mode 1: Header with banner */}
