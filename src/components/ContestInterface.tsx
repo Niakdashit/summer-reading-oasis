@@ -351,97 +351,247 @@ export const ContestInterface = () => {
     updateConfig('descriptionText', newText);
   };
   const configTabs = [{
-    id: 'general',
-    label: 'Général',
-    icon: Settings
+    id: 'setup',
+    label: 'Configuration',
+    icon: Settings,
+    description: 'Paramètres généraux'
   }, {
-    id: 'zone',
-    label: 'Zone de jeu',
-    icon: MousePointer
+    id: 'content',
+    label: 'Contenu',
+    icon: Type,
+    description: 'Textes et médias'
   }, {
-    id: 'texts',
-    label: 'Textes',
-    icon: Type
+    id: 'design',
+    label: 'Design',
+    icon: MousePointer,
+    description: 'Styles et mise en page'
   }, {
-    id: 'images',
-    label: 'Images',
-    icon: Image
+    id: 'interactive',
+    label: 'Interactif',
+    icon: MousePointer,
+    description: 'Boutons et animations'
   }, {
-    id: 'buttons',
-    label: 'Boutons',
-    icon: MousePointer
-  }, {
-    id: 'code',
-    label: 'Code personnalisé et tags',
-    icon: Code
+    id: 'export',
+    label: 'Export',
+    icon: Code,
+    description: 'Code et intégration'
   }];
   return <div className="min-h-screen bg-outer-bg flex">
       {/* Configuration Panel */}
-      <div className="w-80 bg-slate-700 text-white flex flex-col">
+      <div className="w-80 bg-studio-bg border-r border-studio-border flex flex-col shadow-lg">
         {/* Header */}
-        <div className="p-4 border-b border-slate-600">
-          <h2 className="text-lg font-semibold text-orange-400">Iframe : Femme actuelle</h2>
+        <div className="p-6 border-b border-studio-border">
+          <div className="flex items-center gap-3">
+            <div className="w-2 h-2 rounded-full bg-studio-accent"></div>
+            <h2 className="text-lg font-semibold text-studio-text-primary">Studio Contest</h2>
+          </div>
+          <p className="text-sm text-studio-text-muted mt-1">Femme Actuelle</p>
         </div>
 
-        {/* Tabs */}
-        <div className="flex-1">
-          {configTabs.map(tab => {
-          const Icon = tab.icon;
-          return <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`w-full p-4 text-left flex items-center gap-3 border-b border-slate-600 hover:bg-slate-600 transition-colors ${activeTab === tab.id ? 'bg-orange-500 text-white' : 'text-slate-300'}`}>
-                <Icon className="w-4 h-4" />
-                {tab.label}
+        {/* Navigation */}
+        <nav className="flex-1 p-4">
+          <div className="space-y-2">
+            {configTabs.map(tab => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
+            return <button 
+              key={tab.id} 
+              onClick={() => setActiveTab(tab.id)} 
+              className={`
+                w-full p-4 rounded-xl text-left flex items-center gap-4 transition-all duration-200 group
+                ${isActive 
+                  ? 'bg-studio-accent text-white shadow-md' 
+                  : 'hover:bg-studio-surface text-studio-text-secondary hover:text-studio-text-primary'
+                }
+              `}>
+                <div className={`
+                  p-2 rounded-lg transition-colors
+                  ${isActive 
+                    ? 'bg-white/20' 
+                    : 'bg-studio-accent-soft group-hover:bg-studio-accent/10'
+                  }
+                `}>
+                  <Icon className="w-4 h-4" />
+                </div>
+                <div className="flex-1">
+                  <div className="font-medium">{tab.label}</div>
+                  <div className={`text-xs mt-0.5 ${isActive ? 'text-white/70' : 'text-studio-text-muted'}`}>
+                    {tab.description}
+                  </div>
+                </div>
               </button>;
-        })}
-        </div>
+          })}
+          </div>
+        </nav>
 
         {/* Configuration Content */}
-        <div className="p-4 bg-slate-600 space-y-4 max-h-96 overflow-y-auto">
-          {activeTab === 'general' && <>
-              <div>
-                <label className="block text-sm font-medium mb-2">Mode d'affichage</label>
-                <select value={config.mode} onChange={e => updateConfig('mode', parseInt(e.target.value))} className="bg-slate-700 border border-slate-500 rounded px-3 py-1 text-white w-full">
-                  <option value={1}>Mode 1 - Bannière + zone de texte</option>
-                  <option value={2}>Mode 2 - Fond seul (paysage)</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">Largeur</label>
-                <div className="flex items-center gap-2">
-                  <input type="number" value={config.width} onChange={e => updateConfig('width', parseInt(e.target.value))} className="bg-slate-700 border border-slate-500 rounded px-3 py-1 text-white w-20" />
-                  <span className="text-slate-300">px</span>
+        <div className="p-6 bg-studio-surface border-t border-studio-border overflow-y-auto">
+          <div className="space-y-6">
+          {activeTab === 'setup' && <>
+              <div className="space-y-4">
+                <h3 className="text-base font-semibold text-studio-text-primary">Format et dimensions</h3>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-studio-text-secondary mb-2">Largeur</label>
+                    <div className="relative">
+                      <input 
+                        type="number" 
+                        value={config.width} 
+                        onChange={e => updateConfig('width', parseInt(e.target.value))} 
+                        className="w-full px-3 py-2 bg-white border border-studio-border rounded-lg text-studio-text-primary focus:ring-2 focus:ring-studio-accent focus:border-transparent transition-all" 
+                      />
+                      <span className="absolute right-3 top-2 text-xs text-studio-text-muted">px</span>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-studio-text-secondary mb-2">Hauteur</label>
+                    <div className="relative">
+                      <input 
+                        type="number" 
+                        value={config.height} 
+                        onChange={e => updateConfig('height', parseInt(e.target.value))} 
+                        className="w-full px-3 py-2 bg-white border border-studio-border rounded-lg text-studio-text-primary focus:ring-2 focus:ring-studio-accent focus:border-transparent transition-all" 
+                      />
+                      <span className="absolute right-3 top-2 text-xs text-studio-text-muted">px</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-studio-text-secondary mb-2">Mode d'affichage</label>
+                  <select 
+                    value={config.mode} 
+                    onChange={e => updateConfig('mode', parseInt(e.target.value))} 
+                    className="w-full px-3 py-2 bg-white border border-studio-border rounded-lg text-studio-text-primary focus:ring-2 focus:ring-studio-accent focus:border-transparent transition-all"
+                  >
+                    <option value={1}>Bannière + zone de texte</option>
+                    <option value={2}>Fond seul (paysage)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-studio-text-secondary mb-2">Ancrage</label>
+                  <select 
+                    value={config.anchor} 
+                    onChange={e => updateConfig('anchor', e.target.value)} 
+                    className="w-full px-3 py-2 bg-white border border-studio-border rounded-lg text-studio-text-primary focus:ring-2 focus:ring-studio-accent focus:border-transparent transition-all"
+                  >
+                    <option value="fixe">Position fixe</option>
+                    <option value="center">Centré</option>
+                    <option value="top">Aligné en haut</option>
+                  </select>
                 </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">Hauteur</label>
-                <div className="flex items-center gap-2">
-                  <input type="number" value={config.height} onChange={e => updateConfig('height', parseInt(e.target.value))} className="bg-slate-700 border border-slate-500 rounded px-3 py-1 text-white w-20" />
-                  <span className="text-slate-300">px</span>
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">Ancre</label>
-                <select value={config.anchor} onChange={e => updateConfig('anchor', e.target.value)} className="bg-slate-700 border border-slate-500 rounded px-3 py-1 text-white w-full">
-                  <option value="fixe">Fixe</option>
-                  <option value="center">Centré</option>
-                  <option value="top">Haut</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">Bannière (810 x free)</label>
-                <div className="bg-slate-700 border border-slate-500 rounded p-4 h-32 flex items-center justify-center cursor-pointer hover:bg-slate-600 transition-colors">
+
+              <div className="space-y-4">
+                <h3 className="text-base font-semibold text-studio-text-primary">Bannière principale</h3>
+                <div className="bg-studio-surface border-2 border-dashed border-studio-border rounded-xl p-6 transition-all hover:border-studio-accent hover:bg-studio-accent-soft cursor-pointer group">
                   <div className="text-center">
-                    <Image className="w-8 h-8 mx-auto mb-2 text-slate-400" />
-                    <p className="text-sm text-slate-400">Cliquer pour changer</p>
+                    <div className="w-12 h-12 mx-auto mb-3 bg-studio-accent-soft rounded-lg flex items-center justify-center group-hover:bg-studio-accent group-hover:text-white transition-all">
+                      <Image className="w-6 h-6" />
+                    </div>
+                    <p className="text-sm font-medium text-studio-text-primary">Changer la bannière</p>
+                    <p className="text-xs text-studio-text-muted mt-1">810 × libre, formats JPG, PNG</p>
                   </div>
                 </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">Couleur de fond</label>
-                <input type="color" value={config.backgroundColor} onChange={e => updateConfig('backgroundColor', e.target.value)} className="w-full h-10 rounded cursor-pointer" />
+
+              <div className="space-y-4">
+                <h3 className="text-base font-semibold text-studio-text-primary">Couleurs</h3>
+                <div>
+                  <label className="block text-sm font-medium text-studio-text-secondary mb-2">Couleur de fond</label>
+                  <div className="flex items-center gap-3">
+                    <input 
+                      type="color" 
+                      value={config.backgroundColor} 
+                      onChange={e => updateConfig('backgroundColor', e.target.value)} 
+                      className="w-12 h-12 rounded-lg border border-studio-border cursor-pointer" 
+                    />
+                    <input 
+                      type="text" 
+                      value={config.backgroundColor} 
+                      onChange={e => updateConfig('backgroundColor', e.target.value)} 
+                      className="flex-1 px-3 py-2 bg-white border border-studio-border rounded-lg text-studio-text-primary focus:ring-2 focus:ring-studio-accent focus:border-transparent transition-all" 
+                    />
+                  </div>
+                </div>
               </div>
             </>}
 
-          {activeTab === 'zone' && <>
+          {activeTab === 'content' && <>
+              <div className="space-y-4">
+                <h3 className="text-base font-semibold text-studio-text-primary">Éléments de contenu</h3>
+                
+                <div className="grid grid-cols-2 gap-3">
+                  <button 
+                    onClick={addTextElement}
+                    className="p-4 bg-white border border-studio-border rounded-lg hover:border-studio-accent hover:bg-studio-accent-soft transition-all group"
+                  >
+                    <Type className="w-5 h-5 mx-auto mb-2 text-studio-accent" />
+                    <span className="text-sm font-medium text-studio-text-primary">Ajouter du texte</span>
+                  </button>
+                  
+                  <button 
+                    onClick={addImageElement}
+                    className="p-4 bg-white border border-studio-border rounded-lg hover:border-studio-accent hover:bg-studio-accent-soft transition-all group"
+                  >
+                    <Image className="w-5 h-5 mx-auto mb-2 text-studio-accent" />
+                    <span className="text-sm font-medium text-studio-text-primary">Ajouter une image</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Text Elements Management */}
+              {textElements.length > 0 && (
+                <div className="space-y-4">
+                  <h3 className="text-base font-semibold text-studio-text-primary">Éléments de texte</h3>
+                  <div className="space-y-3">
+                    {textElements.map(element => (
+                      <div key={element.id} className={`p-4 bg-white border rounded-lg transition-all ${selectedElement === element.id ? 'border-studio-accent ring-2 ring-studio-accent/20' : 'border-studio-border'}`}>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium text-studio-text-primary truncate">{element.text}</span>
+                          <button 
+                            onClick={() => deleteTextElement(element.id)}
+                            className="text-studio-text-muted hover:text-red-500 transition-colors"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Image Elements Management */}
+              {imageElements.length > 0 && (
+                <div className="space-y-4">
+                  <h3 className="text-base font-semibold text-studio-text-primary">Éléments d'image</h3>
+                  <div className="space-y-3">
+                    {imageElements.map(element => (
+                      <div key={element.id} className={`p-4 bg-white border rounded-lg transition-all ${selectedImageElement === element.id ? 'border-studio-accent ring-2 ring-studio-accent/20' : 'border-studio-border'}`}>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <img src={element.src} alt="" className="w-8 h-8 rounded object-cover" />
+                            <span className="text-sm font-medium text-studio-text-primary">Image {element.id}</span>
+                          </div>
+                          <button 
+                            onClick={() => deleteImageElement(element.id)}
+                            className="text-studio-text-muted hover:text-red-500 transition-colors"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>}
+
+          {activeTab === 'design' && <>
               <div>
                 <label className="block text-sm font-medium mb-2">Padding (espacement interne)</label>
                 <div className="flex items-center gap-2">
@@ -642,9 +792,21 @@ export const ContestInterface = () => {
                   <span className="text-slate-300">px</span>
                 </div>
               </div>
+              <div className="space-y-4">
+                <h3 className="text-base font-semibold text-studio-text-primary">Éléments interactifs</h3>
+                <p className="text-sm text-studio-text-muted">Ajoutez des boutons et des éléments d'interaction</p>
+                
+                <div className="bg-studio-accent-soft border border-studio-accent/20 rounded-lg p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-2 h-2 bg-studio-accent rounded-full"></div>
+                    <span className="text-sm font-medium text-studio-text-primary">Prochainement</span>
+                  </div>
+                  <p className="text-xs text-studio-text-muted">Boutons, roue de la fortune, et plus d'éléments interactifs seront bientôt disponibles.</p>
+                </div>
+              </div>
             </>}
 
-          {activeTab === 'code' && <>
+          {activeTab === 'export' && <>
               <div>
                 <label className="block text-sm font-medium mb-2">CSS personnalisé</label>
                 <textarea placeholder="/* Ajoutez votre CSS ici */" className="bg-slate-700 border border-slate-500 rounded px-3 py-2 text-white w-full h-24 text-sm font-mono" />
@@ -657,7 +819,28 @@ export const ContestInterface = () => {
                 <label className="block text-sm font-medium mb-2">Tags de tracking</label>
                 <textarea placeholder="<script>// Tags Google Analytics, Facebook Pixel, etc.</script>" className="bg-slate-700 border border-slate-500 rounded px-3 py-2 text-white w-full h-24 text-sm font-mono" />
               </div>
+              <div className="space-y-4">
+                <h3 className="text-base font-semibold text-studio-text-primary">Export et intégration</h3>
+                
+                <div className="bg-white border border-studio-border rounded-lg p-4">
+                  <h4 className="font-medium text-studio-text-primary mb-2">Code HTML/CSS</h4>
+                  <p className="text-sm text-studio-text-muted mb-3">Exportez votre création en HTML/CSS prêt à intégrer</p>
+                  <button className="w-full px-4 py-2 bg-studio-accent text-white rounded-lg hover:bg-studio-accent/90 transition-colors">
+                    Générer le code
+                  </button>
+                </div>
+
+                <div className="bg-white border border-studio-border rounded-lg p-4">
+                  <h4 className="font-medium text-studio-text-primary mb-2">Tags personnalisés</h4>
+                  <p className="text-sm text-studio-text-muted mb-3">Ajoutez vos propres scripts de tracking</p>
+                  <textarea 
+                    className="w-full h-24 px-3 py-2 bg-studio-surface border border-studio-border rounded-lg text-studio-text-primary focus:ring-2 focus:ring-studio-accent focus:border-transparent transition-all text-sm" 
+                    placeholder="<!-- Vos tags personnalisés -->"
+                  />
+                </div>
+              </div>
             </>}
+          </div>
         </div>
 
         {/* Bottom Actions */}

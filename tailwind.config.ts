@@ -84,7 +84,23 @@ export default {
 					text: 'hsl(var(--contest-text))',
 					bg: 'hsl(var(--contest-bg))'
 				},
-				'outer-bg': 'hsl(var(--outer-bg))'
+				'outer-bg': 'hsl(var(--outer-bg))',
+				studio: {
+					bg: 'hsl(var(--studio-bg))',
+					surface: 'hsl(var(--studio-surface))',
+					border: 'hsl(var(--studio-border))',
+					text: {
+						primary: 'hsl(var(--studio-text-primary))',
+						secondary: 'hsl(var(--studio-text-secondary))',
+						muted: 'hsl(var(--studio-text-muted))'
+					},
+					accent: {
+						DEFAULT: 'hsl(var(--studio-accent))',
+						soft: 'hsl(var(--studio-accent-soft))'
+					},
+					success: 'hsl(var(--studio-success))',
+					warning: 'hsl(var(--studio-warning))'
+				}
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
