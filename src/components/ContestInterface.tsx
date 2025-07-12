@@ -48,7 +48,7 @@ export const ContestInterface = () => {
     descriptionText: `Valentine et son frère aîné, Antoine, ont 13 ans d'écart. Orphelins de mère, ils viennent de perdre leur père, César Mestre. Le jour des obsèques, une inconnue leur remet une lettre de leur père. La lettre n'explicite pas grand-chose, mais évoque une fracture, des réparations qui n'ont pas eu le temps d'être faites. Antoine s'en détourne vite et retourne à sa vie rangée avec sa femme et ses enfants. Mais Valentine ne reconnaît pas dans ces lignes l'enfance qu'elle a vécue et se donne pour mission de comprendre ce que leur père a voulu leur dire et va enquêter. À son récit s'enchâsse celui de Laure, factrice à Loisel, un petit village normand, et qui vient de faire la connaissance de César. Elle s'est réfugiée là quatre ans plus tôt, après une dépression, et laissant la garde de son fils à son ex-mari, fils avec lequel elle tente peu à peu de renouer un lien fort. Le destin des deux femmes va se croiser.`
   });
   const [editingDescription, setEditingDescription] = useState(false);
-  const updateConfig = (key: string, value: any) => {
+  const updateConfig = (key: string, value: unknown) => {
     setConfig(prev => ({
       ...prev,
       [key]: value
@@ -60,7 +60,7 @@ export const ContestInterface = () => {
     setGameStep('form');
   };
 
-  const handleFormSubmit = (formData: any) => {
+  const handleFormSubmit = (formData: unknown) => {
     console.log('Form submitted:', formData);
     setGameStep('wheel');
   };
