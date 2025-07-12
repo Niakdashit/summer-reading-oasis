@@ -55,6 +55,7 @@ export const WheelOfFortune: React.FC<WheelOfFortuneProps> = ({
       setIsSpinning(false);
       setResult(segments[randomSegment].text);
       setGameState('result');
+      console.log('Game state changed to result, should show button now');
       onGameComplete?.(segments[randomSegment].text);
     }, 3000);
   };
@@ -188,6 +189,7 @@ export const WheelOfFortune: React.FC<WheelOfFortuneProps> = ({
                 <div className="flex justify-center">
                   <Button
                     onClick={() => {
+                      console.log('Rejouer clicked');
                       resetGame();
                     }}
                     variant="contest"
