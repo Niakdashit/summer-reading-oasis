@@ -6,13 +6,16 @@ import { PreviewArea } from './PreviewArea';
 import { useContestState } from '@/hooks/useContestState';
 
 export const ContestInterface = () => {
+  // Centralisation de tous les états via le hook customisé
   const state = useContestState();
   const { previewMode, setPreviewMode } = state;
 
   return (
     <div className="min-h-screen bg-outer-bg flex">
+      {/* Panneau de configuration latéral */}
       <ConfigPanel {...state} />
       <div className="flex-1 flex flex-col">
+        {/* Header des modes de preview */}
         <div className="bg-slate-800 p-4 flex items-center justify-center gap-4 border-b border-slate-600">
           <div className="flex items-center gap-2 bg-slate-700 rounded-lg p-1">
             <Button
@@ -45,6 +48,7 @@ export const ContestInterface = () => {
             Rafraîchir
           </Button>
         </div>
+        {/* Zone de preview */}
         <PreviewArea
           previewMode={previewMode}
           config={state.config}
