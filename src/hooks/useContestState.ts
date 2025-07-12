@@ -73,7 +73,10 @@ export const useContestState = () => {
     descriptionText: `Valentine et son frère a\u00een\u00e9, Antoine, ont 13 ans d'\u00e9cart. Orphelins de m\u00e8re, ils viennent de perdre leur p\u00e8re, C\u00e9sar Mestre.`
   });
 
-  const updateConfig = (key: keyof ContestConfig, value: any) => {
+  const updateConfig = <K extends keyof ContestConfig>(
+    key: K,
+    value: ContestConfig[K]
+  ) => {
     setConfig(prev => ({ ...prev, [key]: value }));
   };
 

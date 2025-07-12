@@ -7,7 +7,10 @@ interface ConfigPanelProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   config: ContestConfig;
-  updateConfig: (key: keyof ContestConfig, value: any) => void;
+  updateConfig: <K extends keyof ContestConfig>(
+    key: K,
+    value: ContestConfig[K]
+  ) => void;
   textElements: TextElement[];
   selectedElement: number | null;
   setSelectedElement: (id: number | null) => void;
