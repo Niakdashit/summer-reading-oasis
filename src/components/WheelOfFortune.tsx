@@ -86,7 +86,7 @@ export const WheelOfFortune: React.FC<WheelOfFortuneProps> = ({
         {/* Outer glow effect */}
         <div className="absolute inset-0 rounded-full bg-gradient-to-br from-yellow-300/20 via-transparent to-orange-400/20 blur-xl scale-110"></div>
         
-        {/* Main wheel container with professional shadows */}
+        {/* Main wheel container */}
         <div 
           ref={wheelRef}
           className="relative w-full h-full rounded-full overflow-hidden"
@@ -94,62 +94,59 @@ export const WheelOfFortune: React.FC<WheelOfFortuneProps> = ({
             transform: `rotate(${rotation}deg)`,
             transition: isSpinning ? 'transform 3s cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
             boxShadow: `
-              0 0 0 8px hsl(var(--contest-shadow)),
-              0 0 0 12px rgba(255, 255, 255, 0.1),
-              0 20px 40px -10px rgba(0, 0, 0, 0.3),
-              0 40px 80px -20px rgba(0, 0, 0, 0.2),
-              inset 0 2px 4px rgba(255, 255, 255, 0.1)
+              0 0 0 6px hsl(var(--contest-shadow)),
+              0 0 0 8px rgba(255, 255, 255, 0.1),
+              0 15px 30px -5px rgba(0, 0, 0, 0.3),
+              0 30px 60px -15px rgba(0, 0, 0, 0.2)
             `
           }}
         >
-          {/* Wheel segments - directly in main container for visibility */}
+          {/* Wheel segments using simple approach */}
           {segments.map((segment, index) => {
-              const angle = segmentAngle * index;
-              const nextAngle = segmentAngle * (index + 1);
-              
-              return (
-                <div
-                  key={segment.id}
-                  className="absolute w-full h-full flex items-center justify-center"
-                  style={{
-                    background: `conic-gradient(from ${angle}deg, 
-                      ${segment.color} 0deg, 
-                      ${segment.color} ${segmentAngle * 0.9}deg, 
-                      rgba(0,0,0,0.1) ${segmentAngle * 0.95}deg,
-                      transparent ${segmentAngle}deg)`,
-                    clipPath: `polygon(50% 50%, 
-                      ${50 + 50 * Math.cos((angle - 90) * Math.PI / 180)}% ${50 + 50 * Math.sin((angle - 90) * Math.PI / 180)}%, 
-                      ${50 + 50 * Math.cos((nextAngle - 90) * Math.PI / 180)}% ${50 + 50 * Math.sin((nextAngle - 90) * Math.PI / 180)}%)`
-                  }}
-                >
-                  {/* Segment highlight effect */}
-                  <div 
-                    className="absolute inset-0"
-                    style={{
-                      background: `linear-gradient(${angle + segmentAngle/2}deg, 
-                        rgba(255,255,255,0.3) 0%, 
-                        transparent 30%, 
-                        rgba(0,0,0,0.1) 100%)`,
-                      clipPath: `polygon(50% 50%, 
-                        ${50 + 45 * Math.cos((angle - 90) * Math.PI / 180)}% ${50 + 45 * Math.sin((angle - 90) * Math.PI / 180)}%, 
-                        ${50 + 45 * Math.cos((nextAngle - 90) * Math.PI / 180)}% ${50 + 45 * Math.sin((nextAngle - 90) * Math.PI / 180)}%)`
-                    }}
-                  ></div>
-                  
-                  <div 
-                    className="relative z-10 text-sm md:text-base font-bold text-center px-2 drop-shadow-sm"
-                    style={{ 
-                      color: segment.textColor,
-                      transform: `rotate(${angle + segmentAngle/2}deg)`,
-                      transformOrigin: '50% 80px',
-                      textShadow: segment.textColor === 'white' ? '0 1px 2px rgba(0,0,0,0.5)' : '0 1px 2px rgba(255,255,255,0.5)'
-                    }}
+            const angle = segmentAngle * index;
+            const centerX = 50;
+            const centerY = 50;
+            const radius = 50;
+            
+            // Calculate the path for each segment
+            const startAngle = (angle - 90) * Math.PI / 180;
+            const endAngle = ((angle + segmentAngle) - 90) * Math.PI / 180;
+            
+            const x1 = centerX + radius * Math.cos(startAngle);
+            const y1 = centerY + radius * Math.sin(startAngle);
+            const x2 = centerX + radius * Math.cos(endAngle);
+            const y2 = centerY + radius * Math.sin(endAngle);
+            
+            const largeArc = segmentAngle > 180 ? 1 : 0;
+            
+            const pathData = `M ${centerX} ${centerY} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2} Z`;
+            
+            return (
+              <div key={segment.id} className="absolute inset-0">
+                <svg className="w-full h-full" viewBox="0 0 100 100">
+                  <path
+                    d={pathData}
+                    fill={segment.color}
+                    stroke="rgba(255,255,255,0.2)"
+                    strokeWidth="0.5"
+                  />
+                  {/* Text positioning */}
+                  <text
+                    x={centerX + (radius * 0.7) * Math.cos((startAngle + endAngle) / 2)}
+                    y={centerY + (radius * 0.7) * Math.sin((startAngle + endAngle) / 2)}
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                    fill={segment.textColor}
+                    fontSize="3"
+                    fontWeight="bold"
+                    transform={`rotate(${angle + segmentAngle/2} ${centerX + (radius * 0.7) * Math.cos((startAngle + endAngle) / 2)} ${centerY + (radius * 0.7) * Math.sin((startAngle + endAngle) / 2)})`}
                   >
                     {segment.text}
-                  </div>
-                </div>
-              );
-            })}
+                  </text>
+                </svg>
+              </div>
+            );
+          })}
 
           {/* Inner center circle */}
           <div 
@@ -163,7 +160,7 @@ export const WheelOfFortune: React.FC<WheelOfFortuneProps> = ({
           ></div>
         </div>
         
-        {/* Enhanced center pointer with 3D effect */}
+        {/* Enhanced center pointer */}
         <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-3 z-20">
           <div 
             className="relative"
@@ -174,8 +171,7 @@ export const WheelOfFortune: React.FC<WheelOfFortuneProps> = ({
             <div 
               className="w-0 h-0 border-l-6 border-r-6 border-b-12 border-l-transparent border-r-transparent"
               style={{
-                borderBottomColor: 'hsl(var(--contest-shadow))',
-                filter: 'brightness(0.8)'
+                borderBottomColor: 'hsl(var(--contest-shadow))'
               }}
             ></div>
             <div 
@@ -187,7 +183,7 @@ export const WheelOfFortune: React.FC<WheelOfFortuneProps> = ({
           </div>
         </div>
         
-        {/* Premium center button with metallic finish */}
+        {/* Center button */}
         <div className="absolute inset-0 flex items-center justify-center z-30">
           <div className="relative">
             {/* Button glow when active */}
@@ -217,11 +213,11 @@ export const WheelOfFortune: React.FC<WheelOfFortuneProps> = ({
           </div>
         </div>
         
-        {/* Glass reflection effect */}
+        {/* Glass reflection effect on top */}
         <div 
           className="absolute inset-0 rounded-full pointer-events-none z-10"
           style={{
-            background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%, rgba(255,255,255,0.05) 100%)'
+            background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%)'
           }}
         ></div>
       </div>
