@@ -102,12 +102,8 @@ export const WheelOfFortune: React.FC<WheelOfFortuneProps> = ({
             `
           }}
         >
-          {/* Inner rim with metallic effect */}
-          <div className="absolute inset-2 rounded-full bg-gradient-to-br from-gray-300 via-gray-100 to-gray-400 shadow-inner"></div>
-          
-          {/* Wheel segments */}
-          <div className="absolute inset-4 rounded-full overflow-hidden">
-            {segments.map((segment, index) => {
+          {/* Wheel segments - directly in main container for visibility */}
+          {segments.map((segment, index) => {
               const angle = segmentAngle * index;
               const nextAngle = segmentAngle * (index + 1);
               
@@ -122,8 +118,8 @@ export const WheelOfFortune: React.FC<WheelOfFortuneProps> = ({
                       rgba(0,0,0,0.1) ${segmentAngle * 0.95}deg,
                       transparent ${segmentAngle}deg)`,
                     clipPath: `polygon(50% 50%, 
-                      ${50 + 45 * Math.cos((angle - 90) * Math.PI / 180)}% ${50 + 45 * Math.sin((angle - 90) * Math.PI / 180)}%, 
-                      ${50 + 45 * Math.cos((nextAngle - 90) * Math.PI / 180)}% ${50 + 45 * Math.sin((nextAngle - 90) * Math.PI / 180)}%)`
+                      ${50 + 50 * Math.cos((angle - 90) * Math.PI / 180)}% ${50 + 50 * Math.sin((angle - 90) * Math.PI / 180)}%, 
+                      ${50 + 50 * Math.cos((nextAngle - 90) * Math.PI / 180)}% ${50 + 50 * Math.sin((nextAngle - 90) * Math.PI / 180)}%)`
                   }}
                 >
                   {/* Segment highlight effect */}
@@ -154,7 +150,17 @@ export const WheelOfFortune: React.FC<WheelOfFortuneProps> = ({
                 </div>
               );
             })}
-          </div>
+
+          {/* Inner center circle */}
+          <div 
+            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-full"
+            style={{
+              width: '20%',
+              height: '20%',
+              background: 'linear-gradient(145deg, #e5e7eb, #9ca3af)',
+              boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.2)'
+            }}
+          ></div>
         </div>
         
         {/* Enhanced center pointer with 3D effect */}
