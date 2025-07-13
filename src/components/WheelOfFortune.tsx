@@ -83,60 +83,141 @@ export const WheelOfFortune: React.FC<WheelOfFortuneProps> = ({
     
     return (
       <div className="relative w-full h-full">
+        {/* Outer glow effect */}
+        <div className="absolute inset-0 rounded-full bg-gradient-to-br from-yellow-300/20 via-transparent to-orange-400/20 blur-xl scale-110"></div>
+        
+        {/* Main wheel container with professional shadows */}
         <div 
           ref={wheelRef}
-          className="relative w-full h-full rounded-full border-4 md:border-8 border-contest-shadow shadow-2xl overflow-hidden"
+          className="relative w-full h-full rounded-full overflow-hidden"
           style={{
             transform: `rotate(${rotation}deg)`,
-            transition: isSpinning ? 'transform 3s cubic-bezier(0.4, 0, 0.2, 1)' : 'none'
+            transition: isSpinning ? 'transform 3s cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
+            boxShadow: `
+              0 0 0 8px hsl(var(--contest-shadow)),
+              0 0 0 12px rgba(255, 255, 255, 0.1),
+              0 20px 40px -10px rgba(0, 0, 0, 0.3),
+              0 40px 80px -20px rgba(0, 0, 0, 0.2),
+              inset 0 2px 4px rgba(255, 255, 255, 0.1)
+            `
           }}
         >
-          {segments.map((segment, index) => {
-            const angle = segmentAngle * index;
-            const nextAngle = segmentAngle * (index + 1);
-            
-            return (
-              <div
-                key={segment.id}
-                className="absolute w-full h-full flex items-center justify-center"
-                style={{
-                  background: `conic-gradient(from ${angle}deg, ${segment.color} 0deg, ${segment.color} ${segmentAngle}deg, transparent ${segmentAngle}deg)`,
-                  clipPath: `polygon(50% 50%, 
-                    ${50 + 50 * Math.cos((angle - 90) * Math.PI / 180)}% ${50 + 50 * Math.sin((angle - 90) * Math.PI / 180)}%, 
-                    ${50 + 50 * Math.cos((nextAngle - 90) * Math.PI / 180)}% ${50 + 50 * Math.sin((nextAngle - 90) * Math.PI / 180)}%)`
-                }}
-              >
-                <div 
-                  className="text-sm font-semibold text-center px-2"
-                  style={{ 
-                    color: segment.textColor,
-                    transform: `rotate(${angle + segmentAngle/2}deg)`,
-                    transformOrigin: '50% 100px'
+          {/* Inner rim with metallic effect */}
+          <div className="absolute inset-2 rounded-full bg-gradient-to-br from-gray-300 via-gray-100 to-gray-400 shadow-inner"></div>
+          
+          {/* Wheel segments */}
+          <div className="absolute inset-4 rounded-full overflow-hidden">
+            {segments.map((segment, index) => {
+              const angle = segmentAngle * index;
+              const nextAngle = segmentAngle * (index + 1);
+              
+              return (
+                <div
+                  key={segment.id}
+                  className="absolute w-full h-full flex items-center justify-center"
+                  style={{
+                    background: `conic-gradient(from ${angle}deg, 
+                      ${segment.color} 0deg, 
+                      ${segment.color} ${segmentAngle * 0.9}deg, 
+                      rgba(0,0,0,0.1) ${segmentAngle * 0.95}deg,
+                      transparent ${segmentAngle}deg)`,
+                    clipPath: `polygon(50% 50%, 
+                      ${50 + 45 * Math.cos((angle - 90) * Math.PI / 180)}% ${50 + 45 * Math.sin((angle - 90) * Math.PI / 180)}%, 
+                      ${50 + 45 * Math.cos((nextAngle - 90) * Math.PI / 180)}% ${50 + 45 * Math.sin((nextAngle - 90) * Math.PI / 180)}%)`
                   }}
                 >
-                  {segment.text}
+                  {/* Segment highlight effect */}
+                  <div 
+                    className="absolute inset-0"
+                    style={{
+                      background: `linear-gradient(${angle + segmentAngle/2}deg, 
+                        rgba(255,255,255,0.3) 0%, 
+                        transparent 30%, 
+                        rgba(0,0,0,0.1) 100%)`,
+                      clipPath: `polygon(50% 50%, 
+                        ${50 + 45 * Math.cos((angle - 90) * Math.PI / 180)}% ${50 + 45 * Math.sin((angle - 90) * Math.PI / 180)}%, 
+                        ${50 + 45 * Math.cos((nextAngle - 90) * Math.PI / 180)}% ${50 + 45 * Math.sin((nextAngle - 90) * Math.PI / 180)}%)`
+                    }}
+                  ></div>
+                  
+                  <div 
+                    className="relative z-10 text-sm md:text-base font-bold text-center px-2 drop-shadow-sm"
+                    style={{ 
+                      color: segment.textColor,
+                      transform: `rotate(${angle + segmentAngle/2}deg)`,
+                      transformOrigin: '50% 80px',
+                      textShadow: segment.textColor === 'white' ? '0 1px 2px rgba(0,0,0,0.5)' : '0 1px 2px rgba(255,255,255,0.5)'
+                    }}
+                  >
+                    {segment.text}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
         
-        {/* Center pointer */}
-        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-2 z-10">
-          <div className="w-0 h-0 border-l-4 border-r-4 border-b-8 border-l-transparent border-r-transparent border-b-contest-shadow"></div>
-        </div>
-        
-        {/* Spin button */}
-        <div className="absolute inset-0 flex items-center justify-center z-10">
-          <Button
-            onClick={spinWheel}
-            disabled={isSpinning || (mode === 2 && gameState === 'initial')}
-            className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-contest-red hover:bg-contest-red/90 text-white shadow-lg disabled:opacity-50"
-            size="icon"
+        {/* Enhanced center pointer with 3D effect */}
+        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-3 z-20">
+          <div 
+            className="relative"
+            style={{
+              filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.3))'
+            }}
           >
-            <RotateCw className={`w-4 h-4 md:w-6 md:h-6 ${isSpinning ? 'animate-spin' : ''}`} />
-          </Button>
+            <div 
+              className="w-0 h-0 border-l-6 border-r-6 border-b-12 border-l-transparent border-r-transparent"
+              style={{
+                borderBottomColor: 'hsl(var(--contest-shadow))',
+                filter: 'brightness(0.8)'
+              }}
+            ></div>
+            <div 
+              className="absolute top-1 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-8 border-l-transparent border-r-transparent"
+              style={{
+                borderBottomColor: 'hsl(var(--contest-red))'
+              }}
+            ></div>
+          </div>
         </div>
+        
+        {/* Premium center button with metallic finish */}
+        <div className="absolute inset-0 flex items-center justify-center z-30">
+          <div className="relative">
+            {/* Button glow when active */}
+            {gameState === 'wheel' && !isSpinning && (
+              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-yellow-400 via-orange-400 to-red-400 blur-md animate-pulse scale-150 opacity-60"></div>
+            )}
+            
+            <Button
+              onClick={spinWheel}
+              disabled={isSpinning || (mode === 2 && gameState === 'initial')}
+              className="relative w-16 h-16 md:w-20 md:h-20 rounded-full text-white disabled:opacity-50 transition-all duration-300 hover:scale-105"
+              size="icon"
+              style={{
+                background: gameState === 'wheel' && !isSpinning 
+                  ? 'linear-gradient(145deg, hsl(var(--contest-red)), #dc2626, hsl(var(--contest-red)))'
+                  : 'linear-gradient(145deg, #6b7280, #4b5563, #374151)',
+                boxShadow: `
+                  0 8px 16px rgba(0,0,0,0.3),
+                  0 4px 8px rgba(0,0,0,0.2),
+                  inset 0 2px 4px rgba(255,255,255,0.1),
+                  inset 0 -2px 4px rgba(0,0,0,0.1)
+                `
+              }}
+            >
+              <RotateCw className={`w-6 h-6 md:w-8 md:h-8 ${isSpinning ? 'animate-spin' : ''} drop-shadow-sm`} />
+            </Button>
+          </div>
+        </div>
+        
+        {/* Glass reflection effect */}
+        <div 
+          className="absolute inset-0 rounded-full pointer-events-none z-10"
+          style={{
+            background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%, rgba(255,255,255,0.05) 100%)'
+          }}
+        ></div>
       </div>
     );
   };
